@@ -193,7 +193,13 @@ st.markdown("""
 /* Main content area */
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section[data-testid="stMain"] { padding: 0 !important; background: #F0F0F3 !important; }
-section[data-testid="stMain"] > div { padding: 0 0 45px 0 !important; }
+section[data-testid="stMain"] > div { padding: 0 !important; }
+
+/* Make the scrollable area work — give padding so content clears fixed input */
+[data-testid="stVerticalBlock"] { padding-bottom: 0 !important; }
+
+/* Indent entire main area away from sidebar with a clean gap */
+.main { padding-left: 28px !important; background: #F0F0F3 !important; }
 
 /* Sidebar */
 [data-testid="stSidebar"] { background: #161618 !important; border-right: 1px solid #2A2A2C !important; box-shadow: 4px 0 24px rgba(0,0,0,0.18) !important; }
@@ -274,7 +280,7 @@ section[data-testid="stMain"] > div { padding: 0 0 45px 0 !important; }
 
 /* Chat body */
 .chat-body {
-    padding: 32px 22px 16px;
+    padding: 24px 44px 110px;
     max-width: 900px; width: 100%; margin: 0 auto;
 }
 
