@@ -443,57 +443,43 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 }
 
 /* Chat input bar */
-.chat-input-wrap {
-    border-top: 2px solid #E8E8EC;
-    background: white;
-    padding: 16px 44px 20px;
-    margin-top: 0 !important;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+/* chat_input native styling */
+[data-testid="stChatInput"] {
+    border-top: 2px solid #E8E8EC !important;
+    padding: 16px 44px 20px !important;
+    background: white !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05) !important;
 }
-/* Kill all extra space Streamlit adds around the input block */
-div[data-testid="stBottom"] { display: none !important; }
-.chat-input-wrap .stTextInput { padding: 0 !important; margin: 0 !important; border: none !important; background: transparent !important; }
-.input-label {
-    font-size: 11px; font-weight: 700; color: #9CA3AF;
-    text-transform: uppercase; letter-spacing: 0.8px;
-    margin-bottom: 8px; padding-left: 2px;
-}
-.input-hint {
-    font-size: 11px; color: #C0C0C8; margin-top: 7px; padding-left: 4px;
-}
-.stTextInput > label { display: none !important; }
-.stTextInput > div > div > input {
+[data-testid="stChatInput"] textarea {
     border-radius: 14px !important;
     border: 2px solid #E2E2E6 !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 15px !important; padding: 15px 20px !important;
-    background: #F9F9FB !important; color: #1A1A1A !important;
-    transition: border-color 0.15s, box-shadow 0.15s !important;
-    width: 100% !important;
+    font-size: 15px !important;
+    padding: 14px 20px !important;
+    background: #F9F9FB !important;
+    color: #1A1A1A !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
+    resize: none !important;
 }
-.stTextInput > div > div > input:focus {
+[data-testid="stChatInput"] textarea:focus {
     border-color: #E8651A !important;
     box-shadow: 0 0 0 4px rgba(232,101,26,0.12) !important;
-    background: white !important; outline: none !important;
+    background: white !important;
+    outline: none !important;
 }
-.stTextInput > div > div > input::placeholder {
-    color: #BBBBC4 !important; font-weight: 400 !important; font-size: 14px !important;
+[data-testid="stChatInput"] textarea::placeholder {
+    color: #BBBBC4 !important;
+    font-size: 14px !important;
 }
+[data-testid="stChatInputSubmitButton"] button {
+    background: linear-gradient(135deg, #E8651A, #D45515) !important;
+    border-radius: 10px !important;
+    border: none !important;
+}
+
 .divider { border: none; border-top: 1px solid #E8E8EC; margin: 20px 0 16px; }
-/* Kill Streamlit's auto margin/padding above the search bar */
-div[data-testid="stVerticalBlock"] > div:has(> .chat-input-wrap) {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-div[data-testid="stMarkdownContainer"]:has(> .chat-input-wrap) {
-    margin: 0 !important; padding: 0 !important;
-}
-/* Remove extra gap between chat body and input */
-.stApp > section > div > div > div > div:last-child {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -560,7 +546,33 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── STEP 1: CATEGORY ──
-if st.session_state.step == "category":
+if st.session_state.step == "global_search":
+    kw = st.session_state.search_query.strip()
+    all_experts = df.to_dict("records") if df is not None else []
+    filtered = [
+        e for e in all_experts
+        if kw.lower() in str(e.get("Speciality", "")).lower()
+        or kw.lower() in str(e.get("Name", "")).lower()
+        or kw.lower() in str(e.get("Company", "")).lower()
+    ]
+    count = len(filtered)
+    st.markdown(f'<div class="user-bubble-wrap"><div class="user-msg">🔎 {kw}</div></div>', unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='bubble-bot'><div class='bot-av'>🧠</div>"
+        f"<div class='bot-msg'>I found <strong>{count} expert{'s' if count != 1 else ''}</strong> matching <em>{kw}</em>:</div></div>",
+        unsafe_allow_html=True
+    )
+    if filtered:
+        for expert in filtered:
+            render_expert(expert)
+    else:
+        st.markdown("<div class='bubble-bot'><div class='bot-av'>🧠</div><div class='bot-msg'>No experts found for that keyword. Try something else.</div></div>", unsafe_allow_html=True)
+    st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+    if st.button("🔄 Start a new search", key="restart_global"):
+        reset()
+        st.rerun()
+
+elif st.session_state.step == "category":
     categories = list(CATEGORY_MAP.keys())
     cols = st.columns(2)
     for i, cat in enumerate(categories):
@@ -626,7 +638,7 @@ elif st.session_state.step == "results":
         else:
             experts = get_experts_for_names(cat_names)
 
-    # Apply keyword filter
+    # Apply keyword filter from submitted search
     kw = st.session_state.search_query.strip()
     filtered_experts = experts
     if kw:
@@ -664,22 +676,20 @@ elif st.session_state.step == "results":
 
 st.markdown('</div>', unsafe_allow_html=True)  # close chat-body
 
-# ── SEARCH INPUT ── always visible at bottom
-st.markdown('<div class="chat-input-wrap">', unsafe_allow_html=True)
-st.markdown("<div class='input-label'>🔎 &nbsp; Search experts by keyword</div>", unsafe_allow_html=True)
-query = st.text_input(
-    "search",
-    value=st.session_state.search_query,
-    placeholder="e.g. 'capital allowance', 'probate', 'wills', 'bridging'...",
-    key="search_input",
-    label_visibility="collapsed"
-)
-if query != st.session_state.search_query:
-    st.session_state.search_query = query
+# ── SEARCH INPUT ── native bottom bar, no gaps
+query = st.chat_input("🔎  Search experts, e.g. 'capital allowance', 'probate', 'bridging'...")
+if query:
+    # If on results page, filter further; otherwise do a global search across all experts
     if st.session_state.step == "results":
+        st.session_state.search_query = query
         st.rerun()
-st.markdown("<div class='input-hint'>Press Enter or keep typing — results update instantly</div>", unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        # Global keyword search across all experts regardless of category
+        st.session_state.search_query = query
+        st.session_state.chosen_category = "⚖️ Legal"  # dummy, overridden below
+        st.session_state.chosen_sub = "__all__"
+        st.session_state.step = "global_search"
+        st.rerun()
 
 if err:
     st.warning(f"⚠️ Could not load live data: {err}")
