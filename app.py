@@ -89,7 +89,7 @@ st.markdown(f"""
     * {{ box-sizing: border-box; }}
     .stApp {{ background: #F4F4F6 !important; font-family: 'Plus Jakarta Sans', sans-serif !important; }}
     [data-testid="stHeader"], [data-testid="stToolbar"] {{ display: none !important; }}
-    .block-container {{ max-width: 720px !important; padding: 0 !important; margin: 0 auto; }}
+    .block-container {{ max-width: 720px !important; padding: 0 0 90px 0 !important; margin: 0 auto; }}
     section[data-testid="stMain"] > div {{ padding: 0 !important; }}
 
     /* ── HEADER ── */
@@ -115,10 +115,6 @@ st.markdown(f"""
     }}
 
     /* ── CHAT AREA ── */
-    .chat-area {{
-        padding: 24px 20px 16px; display: flex; flex-direction: column; gap: 4px;
-    }}
-
     /* Bot bubble */
     .bubble-bot {{ display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; }}
     .bot-av {{
@@ -229,8 +225,7 @@ st.markdown(f"""
         display: flex; align-items: center; justify-content: center; font-size: 13px;
         flex-shrink: 0;
     }}
-    .contact-link {{ color: #374151; text-decoration: none; }}
-    .contact-link:hover {{ color: #E8651A; }}
+    .contact-text {{ color: #374151; font-size: 13px; font-weight: 500; }}
     .syndesi-btn {{
         display: inline-flex; align-items: center; gap: 7px;
         background: linear-gradient(135deg, #E8651A, #D45515);
@@ -248,11 +243,10 @@ st.markdown(f"""
 
     /* ── CHAT INPUT AREA ── */
     .input-area {{
-        position: sticky; bottom: 0;
         background: white;
         border-top: 1px solid #EBEBED;
-        padding: 14px 20px;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+        padding: 14px 20px 10px;
+        margin-top: 8px;
     }}
     .stTextInput > div > div > input {{
         border-radius: 12px !important;
@@ -325,19 +319,19 @@ def render_expert(expert):
     email      = str(expert.get("Email", "")).strip()
     phone      = str(expert.get("Phone", "")).strip()
 
-    email_html = f"""
+    email_html = f'''
         <div class="contact-item">
             <div class="contact-icon">✉️</div>
-            <a href="mailto:{email}?subject=Syndesi Network Inquiry" class="contact-link">{email}</a>
-        </div>""" if email and email != "nan" else ""
+            <span class="contact-text">{email}</span>
+        </div>''' if email and email != "nan" else ""
 
-    phone_html = f"""
+    phone_html = f'''
         <div class="contact-item">
             <div class="contact-icon">📞</div>
-            <a href="tel:{phone}" class="contact-link">{phone}</a>
-        </div>""" if phone and phone != "nan" else ""
+            <span class="contact-text">{phone}</span>
+        </div>''' if phone and phone != "nan" else ""
 
-    st.markdown(f"""
+    card_html = f'''
         <div class="expert-card">
             <div class="expert-header">
                 <div class="expert-initials">{initials(name)}</div>
@@ -351,15 +345,12 @@ def render_expert(expert):
                 {email_html}
                 {phone_html}
             </div>
-            <a href="{SYNDESI_LINK}" target="_blank" class="syndesi-btn">
-                🔗 Contact on Syndesi
-            </a>
+            <a href="{SYNDESI_LINK}" target="_blank" class="syndesi-btn">&#128279; Contact on Syndesi</a>
         </div>
-    """, unsafe_allow_html=True)
+    '''
+    st.markdown(card_html, unsafe_allow_html=True)
 
 # ── CHAT AREA ──
-st.markdown('<div class="chat-area">', unsafe_allow_html=True)
-
 # Opening message
 st.markdown("""
     <div class="bubble-bot">
@@ -464,9 +455,7 @@ elif st.session_state.step == "results":
         reset()
         st.rerun()
 
-st.markdown('</div>', unsafe_allow_html=True)
-
-# ── STICKY INPUT ──
+# ── INPUT ──
 st.markdown('<div class="input-area">', unsafe_allow_html=True)
 keyword = st.text_input(
     "keyword",
@@ -478,7 +467,5 @@ if keyword != st.session_state.get("keyword", ""):
     st.session_state.keyword = keyword
     if st.session_state.step == "results":
         st.rerun()
-st.markdown('</div>', unsafe_allow_html=True)
-
 if err:
     st.warning(f"⚠️ Could not load live data: {err}")
