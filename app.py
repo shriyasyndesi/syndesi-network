@@ -12,7 +12,6 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 SHEET_ID = "1mjEM2jJ69Qc0m5R1mdw6wjsPhRJ0mscNhMJLwNdRM7Q"
 # Use gviz JSON endpoint — avoids CORS and auth issues
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv"
-LOGO_URL = "https://www.syndesi.network/syndesi_logo_white_on_orange.png"
 
 st.set_page_config(page_title="Syndesi Assistant", page_icon="🔶", layout="centered")
 
@@ -28,11 +27,6 @@ st.markdown(f"""
     .chat-bubble-container {{ display: flex; gap: 12px; margin-bottom: 24px; animation: fadeIn 0.3s ease; }}
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(5px); }} to {{ opacity: 1; transform: translateY(0); }} }}
 
-    .avatar {{
-        width: 32px; height: 32px; border-radius: 6px;
-        background: #E8651A; display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0; margin-top: 4px; overflow: hidden;
-    }}
     
     .msg-content {{ font-size: 15px; line-height: 1.6; color: #374151; }}
     .user-msg-box {{
@@ -111,14 +105,13 @@ def gemini_call(prompt):
 # ── SESSION STATE ──
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "Hi, I'm your Syndesi Assistant. How can I help you find an expert today?"}
+        {"role": "assistant", "content": "Hi, I'm the Syndesi Assistant. How can I help you find an expert today?"}
     ]
 
 # ── HEADER ──
 st.markdown(f"""
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 30px; border-bottom: 1px solid #E5E7EB; padding-bottom: 15px;">
-        <img src="{LOGO_URL}" width="35" style="border-radius: 5px;" onerror="this.src='https://www.syndesi.network/favicon.ico'">
-        <h3 style="margin:0; color:#111827; font-weight:700;">Syndesi Concierge</h3>
+        <h3 style="margin:0; color:#111827; font-weight:700;">Syndesi Assistant</h3>
     </div>
 """, unsafe_allow_html=True)
 
@@ -131,7 +124,6 @@ for msg in st.session_state.messages:
         if isinstance(content, str):
             st.markdown(f"""
                 <div class="chat-bubble-container">
-                    <div class="avatar"><img src="{LOGO_URL}" width="20" onerror="this.src='https://www.syndesi.network/favicon.ico'"></div>
                     <div class="msg-content">{content}</div>
                 </div>
             """, unsafe_allow_html=True)
@@ -139,7 +131,6 @@ for msg in st.session_state.messages:
             res = content["result"]
             st.markdown(f"""
                 <div class="chat-bubble-container">
-                    <div class="avatar"><img src="{LOGO_URL}" width="20" onerror="this.src='https://www.syndesi.network/favicon.ico'"></div>
                     <div class="msg-content">{res.get('reply', '')}</div>
                 </div>
             """, unsafe_allow_html=True)
