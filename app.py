@@ -195,11 +195,22 @@ st.markdown("""
 section[data-testid="stMain"] { padding: 0 !important; background: #F0F0F3 !important; }
 section[data-testid="stMain"] > div { padding: 0 !important; }
 
-/* Make the scrollable area work — give padding so content clears fixed input */
-[data-testid="stVerticalBlock"] { padding-bottom: 0 !important; }
-
 /* Indent entire main area away from sidebar with a clean gap */
-.main { padding-left: 28px !important; background: #F0F0F3 !important; }
+.main { padding-left: 24px !important; background: #F0F0F3 !important; }
+
+/* Add bottom padding to the scrollable stMain so content clears the chat input */
+section[data-testid="stMain"] > div > div > div {
+    padding-bottom: 100px !important;
+}
+/* Kill top gap Streamlit adds before first element */
+section[data-testid="stMain"] > div > div {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+[data-testid="stVerticalBlock"] > div:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
 
 /* Sidebar */
 [data-testid="stSidebar"] { background: #161618 !important; border-right: 1px solid #2A2A2C !important; box-shadow: 4px 0 24px rgba(0,0,0,0.18) !important; }
@@ -280,7 +291,7 @@ section[data-testid="stMain"] > div { padding: 0 !important; }
 
 /* Chat body */
 .chat-body {
-    padding: 24px 44px 110px;
+    padding: 20px 44px 16px;
     max-width: 900px; width: 100%; margin: 0 auto;
 }
 
