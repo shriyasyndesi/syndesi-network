@@ -205,7 +205,7 @@ section[data-testid="stMain"] > div {
     margin-left: 0 !important;
 }
 section[data-testid="stMain"] {
-    border-left: 6px solid #E8E8EC !important;
+    border-left: 12px solid #E2E2E6 !important;
     background: #F0F0F3 !important;
 }
 [data-testid="stSidebar"] {
@@ -444,30 +444,38 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 
 /* Chat input bar */
 .chat-input-wrap {
-    border-top: 1px solid #E8E8EC;
-    background: white; padding: 16px 44px 20px;
+    border-top: 2px solid #E8E8EC;
+    background: white;
+    padding: 20px 44px 24px;
     flex-shrink: 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+}
+.input-label {
+    font-size: 11px; font-weight: 700; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 8px; padding-left: 2px;
 }
 .input-hint {
-    font-size: 11px; color: #ABABAB; margin-top: 6px; padding-left: 4px;
+    font-size: 11px; color: #C0C0C8; margin-top: 7px; padding-left: 4px;
 }
 .stTextInput > label { display: none !important; }
 .stTextInput > div > div > input {
-    border-radius: 12px !important;
-    border: 1.5px solid #E2E2E6 !important;
+    border-radius: 14px !important;
+    border: 2px solid #E2E2E6 !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 14px !important; padding: 12px 18px !important;
+    font-size: 15px !important; padding: 15px 20px !important;
     background: #F9F9FB !important; color: #1A1A1A !important;
     transition: border-color 0.15s, box-shadow 0.15s !important;
     width: 100% !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
 }
 .stTextInput > div > div > input:focus {
     border-color: #E8651A !important;
-    box-shadow: 0 0 0 3px rgba(232,101,26,0.1) !important;
+    box-shadow: 0 0 0 4px rgba(232,101,26,0.12) !important;
     background: white !important; outline: none !important;
 }
 .stTextInput > div > div > input::placeholder {
-    color: #ABABAB !important; font-weight: 400 !important;
+    color: #BBBBC4 !important; font-weight: 400 !important; font-size: 14px !important;
 }
 .divider { border: none; border-top: 1px solid #E8E8EC; margin: 20px 0 16px; }
 </style>
@@ -642,10 +650,11 @@ st.markdown('</div>', unsafe_allow_html=True)  # close chat-body
 
 # ── SEARCH INPUT ── always visible at bottom
 st.markdown('<div class="chat-input-wrap">', unsafe_allow_html=True)
+st.markdown("<div class='input-label'>🔎 &nbsp; Search experts by keyword</div>", unsafe_allow_html=True)
 query = st.text_input(
     "search",
     value=st.session_state.search_query,
-    placeholder="🔎  Type a keyword to filter, e.g. 'capital allowance', 'probate', 'wills'...",
+    placeholder="e.g. 'capital allowance', 'probate', 'wills', 'bridging'...",
     key="search_input",
     label_visibility="collapsed"
 )
