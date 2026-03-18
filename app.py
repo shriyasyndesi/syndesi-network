@@ -202,7 +202,7 @@ section[data-testid="stMain"] > div { padding: 0 !important; }
 section[data-testid="stMain"] > div > div > div {
     padding-bottom: 100px !important;
 }
-/* Kill top gap Streamlit adds before first element */
+/* Kill ALL top gaps */
 section[data-testid="stMain"] > div > div {
     margin-top: 0 !important;
     padding-top: 0 !important;
@@ -210,6 +210,12 @@ section[data-testid="stMain"] > div > div {
 [data-testid="stVerticalBlock"] > div:first-child {
     margin-top: 0 !important;
     padding-top: 0 !important;
+}
+[data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+}
+div[data-testid="stMarkdownContainer"] p {
+    margin: 0 !important;
 }
 
 /* Sidebar */
@@ -291,7 +297,7 @@ section[data-testid="stMain"] > div > div {
 
 /* Chat body */
 .chat-body {
-    padding: 20px 44px 16px 56px;
+    padding: 0px 44px 16px 56px;
     max-width: 900px; width: 100%; margin: 0 auto;
 }
 
