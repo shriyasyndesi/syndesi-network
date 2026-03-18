@@ -200,8 +200,8 @@ section[data-testid="stMain"] > div {
     padding: 0 !important;
 }
 [data-testid="stSidebar"] {
-    background: #1C1C1E !important;
-    border-right: 1px solid #2C2C2E !important;
+    background: #161618 !important;
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
 }
 [data-testid="stSidebar"] > div {
     padding: 0 !important;
@@ -209,46 +209,56 @@ section[data-testid="stMain"] > div {
 
 /* ── SIDEBAR ── */
 .sb-header {
-    padding: 24px 20px 16px;
-    border-bottom: 1px solid #2C2C2E;
-    margin-bottom: 8px;
+    padding: 28px 22px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    margin-bottom: 4px;
 }
 .sb-brand {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 11px; margin-bottom: 3px;
 }
 .sb-icon {
-    width: 32px; height: 32px;
+    width: 34px; height: 34px;
     background: linear-gradient(135deg, #E8651A, #F0853A);
-    border-radius: 8px; display: flex; align-items: center;
-    justify-content: center; font-size: 17px;
+    border-radius: 9px; display: flex; align-items: center;
+    justify-content: center; font-size: 18px;
+    box-shadow: 0 2px 8px rgba(232,101,26,0.4);
 }
-.sb-title { font-weight: 800; font-size: 15px; color: white; }
-.sb-subtitle { font-size: 11px; color: #6B6B6E; padding-left: 42px; }
+.sb-title { font-weight: 800; font-size: 16px; color: #F5F5F7; letter-spacing: -0.2px; }
+.sb-subtitle { font-size: 11px; color: #5A5A60; padding-left: 45px; font-weight: 500; }
 .sb-section-label {
-    font-size: 10px; font-weight: 700; color: #6B6B6E;
-    text-transform: uppercase; letter-spacing: 1px;
-    padding: 16px 20px 8px;
+    font-size: 10px; font-weight: 700; color: #46464A;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    padding: 20px 22px 10px;
 }
 .sb-empty {
-    padding: 20px; text-align: center;
-    color: #4B4B4E; font-size: 13px; line-height: 1.5;
+    padding: 16px 22px 20px; text-align: center;
+    color: #46464A; font-size: 12.5px; line-height: 1.6;
+    font-style: italic;
 }
 .sb-item {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 20px; cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: all 0.15s;
+    padding: 9px 22px; cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s; gap: 8px;
 }
-.sb-item:hover { background: #2C2C2E; border-left-color: #E8651A; }
-.sb-item-label { font-size: 13px; color: #E0E0E0; font-weight: 500; line-height: 1.4; }
-.sb-item-time { font-size: 10px; color: #6B6B6E; flex-shrink: 0; margin-left: 8px; }
+.sb-item:hover { background: rgba(255,255,255,0.05); border-left-color: #E8651A; }
+.sb-item-label { font-size: 12.5px; color: #C8C8CE; font-weight: 500; line-height: 1.45; flex: 1; }
+.sb-item-time { font-size: 10px; color: #46464A; flex-shrink: 0; }
+.sb-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 12px 0; }
 .sb-new-btn {
-    margin: 16px 20px 0;
+    margin: 14px 22px 0;
     display: block; text-align: center;
-    background: #E8651A; color: white !important;
-    padding: 10px; border-radius: 10px;
+    background: linear-gradient(135deg, #E8651A, #D45515);
+    color: white !important;
+    padding: 11px; border-radius: 10px;
     font-size: 13px; font-weight: 700;
     text-decoration: none; cursor: pointer;
+    box-shadow: 0 2px 10px rgba(232,101,26,0.35);
+    transition: all 0.15s;
+}
+.sb-new-btn:hover {
+    box-shadow: 0 4px 16px rgba(232,101,26,0.5);
+    transform: translateY(-1px);
 }
 
 /* ── MAIN CHAT AREA ── */
@@ -259,7 +269,7 @@ section[data-testid="stMain"] > div {
 .chat-header {
     background: white;
     border-bottom: 1px solid #E8E8EC;
-    padding: 14px 28px;
+    padding: 16px 40px;
     display: flex; align-items: center; gap: 12px;
     box-shadow: 0 1px 8px rgba(0,0,0,0.05);
     flex-shrink: 0;
@@ -279,8 +289,9 @@ section[data-testid="stMain"] > div {
 
 .chat-body {
     flex: 1; overflow-y: auto;
-    padding: 24px 28px 16px;
+    padding: 32px 40px 24px;
     display: flex; flex-direction: column; gap: 0;
+    max-width: 860px; width: 100%; margin: 0 auto;
 }
 
 /* Bubbles */
@@ -327,7 +338,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button:hover {
     transform: translateY(-1px) !important;
 }
 
-/* Show all / restart */
+/* Show all / restart - main area */
 div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button {
     background: transparent !important;
     border: 1.5px solid #E2E2E6 !important;
@@ -338,6 +349,38 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button {
 }
 div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover {
     border-color: #E8651A !important; color: #E8651A !important;
+}
+/* Sidebar New Search button */
+[data-testid="stSidebar"] .stButton > button {
+    background: linear-gradient(135deg, #E8651A, #D45515) !important;
+    border: none !important;
+    border-radius: 10px !important; color: white !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 700 !important; font-size: 13px !important;
+    padding: 11px 18px !important;
+    box-shadow: 0 2px 10px rgba(232,101,26,0.35) !important;
+    transition: all 0.15s !important;
+    width: 100% !important;
+}
+[data-testid="stSidebar"] .stButton > button:hover {
+    box-shadow: 0 4px 16px rgba(232,101,26,0.5) !important;
+    transform: translateY(-1px) !important;
+    background: linear-gradient(135deg, #F0753A, #E8651A) !important;
+    color: white !important;
+}
+/* Sidebar restore buttons */
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 8px !important; color: #C8C8CE !important;
+    font-size: 13px !important; padding: 6px 10px !important;
+    font-weight: 500 !important; width: auto !important;
+    box-shadow: none !important;
+}
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button:hover {
+    background: rgba(232,101,26,0.2) !important;
+    border-color: #E8651A !important; color: #E8651A !important;
+    transform: none !important; box-shadow: none !important;
 }
 
 /* Expert card */
@@ -393,8 +436,11 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 /* Chat input bar */
 .chat-input-wrap {
     border-top: 1px solid #E8E8EC;
-    background: white; padding: 14px 28px;
+    background: white; padding: 16px 40px 20px;
     flex-shrink: 0;
+}
+.input-hint {
+    font-size: 11px; color: #ABABAB; margin-top: 6px; padding-left: 4px;
 }
 .stTextInput > label { display: none !important; }
 .stTextInput > div > div > input {
@@ -433,25 +479,30 @@ with st.sidebar:
     st.markdown('<div class="sb-section-label">Recent Searches</div>', unsafe_allow_html=True)
 
     if not st.session_state.recent_searches:
-        st.markdown('<div class="sb-empty">Your recent searches will appear here</div>', unsafe_allow_html=True)
+        st.markdown(
+            "<div class='sb-empty'>Your recent searches<br>will appear here</div>",
+            unsafe_allow_html=True
+        )
     else:
         for i, entry in enumerate(st.session_state.recent_searches):
-            col1, col2 = st.columns([5, 1])
+            col1, col2 = st.columns([6, 1])
             with col1:
                 st.markdown(
-                    f"<div class='sb-item'>"
-                    f"<span class='sb-item-label'>{entry['label']}</span>"
-                    f"<span class='sb-item-time'>{entry['time']}</span>"
-                    f"</div>",
+                    "<div class='sb-item'>"
+                    "<div>"
+                    "<div class='sb-item-label'>" + entry['label'] + "</div>"
+                    "<div class='sb-item-time'>" + entry['time'] + "</div>"
+                    "</div></div>",
                     unsafe_allow_html=True
                 )
             with col2:
-                if st.button("↩", key=f"restore_{i}", help="Restore this search"):
+                if st.button("↩", key=f"restore_{i}", help="Jump back to this search"):
                     restore_search(entry)
                     st.rerun()
 
     st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
-    if st.button("＋ New Search", key="sb_new"):
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    if st.button("＋  New Search", key="sb_new", use_container_width=True):
         reset()
         st.rerun()
 
@@ -585,15 +636,15 @@ st.markdown('<div class="chat-input-wrap">', unsafe_allow_html=True)
 query = st.text_input(
     "search",
     value=st.session_state.search_query,
-    placeholder="Type a keyword to filter experts, e.g. 'capital allowance', 'probate', 'wills'...",
+    placeholder="🔎  Type a keyword to filter, e.g. 'capital allowance', 'probate', 'wills'...",
     key="search_input",
     label_visibility="collapsed"
 )
-# Only trigger rerun if value actually changed
 if query != st.session_state.search_query:
     st.session_state.search_query = query
     if st.session_state.step == "results":
         st.rerun()
+st.markdown("<div class='input-hint'>Press Enter or keep typing — results update instantly</div>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 if err:
