@@ -10,130 +10,122 @@ from dotenv import load_dotenv
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1mjEM2jJ69Qc0m5R1mdw6wjsPhRJ0mscNhMJLwNdRM7Q/export?format=csv"
+LOGO_URL = "https://www.syndesi.network/syndesi_logo_white_on_orange.png" # Updated to Syndesi asset
 
 st.set_page_config(
     page_title="Syndesi Concierge",
     page_icon="🔶",
     layout="wide",
-    initial_sidebar_state="collapsed"
 )
 
-# ── MODERN UI STYLING ──
+# ── REFINED MODERN UI ──
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-/* Global Reset */
-html, body, [data-testid="stAppViewContainer"] {
-    background-color: #F8F7F4 !important;
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
+/* Global Styles */
+.stApp {
+    background-color: #F9F8F6 !important;
 }
 
-.main .block-container {
-    padding-top: 2rem !important;
-    max-width: 850px !important;
-}
-
-/* Hide Streamlit elements */
 [data-testid="stHeader"], [data-testid="stToolbar"] { display: none !important; }
 
-/* Chat Bubbles */
-.user-msg {
-    background: #1C1917;
-    color: white;
-    padding: 14px 20px;
-    border-radius: 20px 20px 4px 20px;
-    margin-bottom: 20px;
-    align-self: flex-end;
-    max-width: 80%;
-    margin-left: auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+.main-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.bot-container {
+/* Header */
+.header-area {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 20px;
+}
+.brand-logo-img {
+    width: 60px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+}
+
+/* Chat Row Layout */
+.chat-row {
     display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+    width: 100%;
+    animation: fadeIn 0.3s ease-in;
 }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.bot-avatar {
-    width: 36px; height: 36px;
-    background: #E8651A;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 10px rgba(232, 101, 26, 0.2);
+.bot-row { justify-content: flex-start; }
+.user-row { justify-content: flex-end; }
+
+.bubble {
+    padding: 14px 20px;
+    border-radius: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 85%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
-
-.bot-msg {
+.bot-bubble {
     background: white;
     color: #1C1917;
-    padding: 16px 20px;
-    border-radius: 4px 22px 22px 22px;
     border: 1px solid #EEEBE6;
-    max-width: 85%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    line-height: 1.6;
+    border-bottom-left-radius: 4px;
+}
+.user-bubble {
+    background: #1C1917;
+    color: #FFFFFF;
+    border-bottom-right-radius: 4px;
 }
 
-/* Expert Cards */
+/* Expert Result Cards */
 .expert-card {
     background: white;
-    border-radius: 24px;
+    border-radius: 20px;
     padding: 24px;
-    margin: 16px 0 16px 48px;
+    margin: 12px 0 20px 0;
     border: 1px solid #EAE8E4;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
 }
-.expert-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.04);
-}
-
-.confidence-badge {
-    padding: 4px 12px;
+.match-badge {
+    background: #FDF0E8;
+    color: #E8651A;
+    padding: 5px 12px;
     border-radius: 100px;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
+.expert-name { font-weight: 700; font-size: 18px; margin: 12px 0 4px; color: #1C1917; }
+.expert-meta { color: #E8651A; font-weight: 600; font-size: 14px; margin-bottom: 12px; }
+.expert-reason { color: #57534E; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
 
-/* Floating Input Bar */
+.action-btn {
+    display: block;
+    text-align: center;
+    background: #E8651A;
+    color: white !important;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+.action-btn:hover { background: #D65A17; }
+
+/* Input Bar Fix */
 .stTextInput > div > div > input {
-    border-radius: 100px !important;
-    padding: 24px 28px !important;
-    border: 1px solid #E0DDD7 !important;
-    background: white !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.04) !important;
-    font-size: 16px !important;
+    background-color: white !important;
+    border-radius: 14px !important;
+    border: 1px solid #DEDAD6 !important;
+    padding: 14px 20px !important;
+    font-size: 15px !important;
 }
-
-.send-btn-container {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 800px;
-    padding: 0 20px;
-    z-index: 1000;
-}
-
-/* Custom Buttons */
-.stButton > button {
-    border-radius: 100px !important;
-    border: 1px solid #E0DDD7 !important;
-    background: white !important;
-    transition: all 0.2s !important;
-    color: #444 !important;
-    font-weight: 500 !important;
-}
-.stButton > button:hover {
-    border-color: #E8651A !important;
-    color: #E8651A !important;
-    background: #FFF9F5 !important;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -158,8 +150,7 @@ def gemini_call(prompt):
         clean = raw.replace("```json","").replace("```","").strip()
         if "{" in clean: clean = clean[clean.index("{"):clean.rindex("}")+1]
         return clean, None
-    except Exception as e:
-        return None, str(e)
+    except Exception as e: return None, str(e)
 
 # ── SESSION STATE ──
 if "messages" not in st.session_state:
@@ -167,86 +158,69 @@ if "messages" not in st.session_state:
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
-# ── HEADER ──
+# ── APP LAYOUT ──
+st.markdown('<div class="main-container">', unsafe_allow_html=True)
+
+# Header with Logo
 st.markdown(f"""
-    <div style="text-align: center; margin-bottom: 40px;">
-        <img src="https://www.syndesi.network/favicon.ico" width="40" style="margin-bottom:10px">
-        <h2 style="font-weight: 700; color: #1C1917; margin-bottom: 4px;">Syndesi Concierge</h2>
-        <p style="color: #78716C; font-size: 14px;">Intelligent Expert Matching Network</p>
+    <div class="header-area">
+        <img src="{LOGO_URL}" class="brand-logo-img" onerror="this.src='https://www.syndesi.network/favicon.ico'">
+        <h2 style="margin:0; color:#1C1917; font-weight:700; letter-spacing:-0.02em;">Syndesi Concierge</h2>
+        <p style="color:#78716C; font-size:14px; margin-top:5px;">Intelligent Expert Matching Network</p>
     </div>
 """, unsafe_allow_html=True)
 
-# ── CHAT DISPLAY ──
+# Chat Display
 for msg in st.session_state.messages:
     if msg["role"] == "user":
-        st.markdown(f'<div class="user-msg">{msg["content"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="chat-row user-row"><div class="bubble user-bubble">{msg["content"]}</div></div>', unsafe_allow_html=True)
     else:
-        # Check if it's a result or a simple text message
         content = msg["content"]
         if isinstance(content, dict) and content.get("type") == "result":
             res = content["result"]
-            st.markdown(f"""
-                <div class="bot-container">
-                    <div class="bot-avatar">🔶</div>
-                    <div class="bot-msg">{res.get('reply')}</div>
-                </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f'<div class="chat-row bot-row"><div class="bubble bot-bubble">{res.get("reply")}</div></div>', unsafe_allow_html=True)
             
             for m in res.get("matches", []):
-                conf = m.get("confidence", 0)
-                color = "#16a34a" if conf > 85 else "#E8651A"
                 st.markdown(f"""
                     <div class="expert-card">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                            <div>
-                                <span class="confidence-badge" style="background: {color}15; color: {color};">{conf}% Match</span>
-                                <h3 style="margin: 8px 0 2px 0; font-size: 18px; font-weight: 700;">{m.get('name')}</h3>
-                                <p style="color: #E8651A; font-weight: 600; font-size: 13px; margin:0;">{m.get('speciality')} @ {m.get('company')}</p>
-                            </div>
-                        </div>
-                        <p style="color: #57534E; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">{m.get('reason')}</p>
-                        <div style="display: flex; gap: 10px;">
-                            <a href="mailto:{m.get('email')}" style="text-decoration: none; flex: 1;">
-                                <div style="background: #1C1917; color: white; text-align: center; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 500;">Email Specialist</div>
-                            </a>
-                            <div style="background: #F4F2EE; color: #1C1917; text-align: center; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 500; flex: 1;">{m.get('phone')}</div>
-                        </div>
+                        <span class="match-badge">{m.get('confidence')}% Match</span>
+                        <div class="expert-name">{m.get('name')}</div>
+                        <div class="expert-meta">{m.get('speciality')} · {m.get('company')}</div>
+                        <div class="expert-reason">{m.get('reason')}</div>
+                        <a href="mailto:{m.get('email')}?subject=Syndesi Concierge Referral" class="action-btn">Connect via Email</a>
                     </div>
                 """, unsafe_allow_html=True)
         else:
-            st.markdown(f"""
-                <div class="bot-container">
-                    <div class="bot-avatar">🔶</div>
-                    <div class="bot-msg">{content}</div>
-                </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f'<div class="chat-row bot-row"><div class="bubble bot-bubble">{content}</div></div>', unsafe_allow_html=True)
 
-# ── INPUT LOGIC ──
-st.markdown('<div class="send-btn-container">', unsafe_allow_html=True)
-user_query = st.text_input("How can we help?", placeholder="e.g. I need help with an HMRC tax investigation...", label_visibility="collapsed")
-st.markdown('</div>', unsafe_allow_html=True)
+# Input area
+st.write("") # Spacer
+user_query = st.text_input("Describe your situation", key="user_input", placeholder="How can we help you today?", label_visibility="collapsed")
 
 if user_query and not st.session_state.processing:
     st.session_state.processing = True
     st.session_state.messages.append({"role": "user", "content": user_query})
     
-    # Process
-    df, err = load_professionals()
+    df, _ = load_professionals()
+    summary = "\n".join([" | ".join(map(str, row)) for row in df.values])
+    
+    prompt = f"""Match this query: '{user_query}' against these professionals: {summary}. 
+    Return ONLY valid JSON: {{'reply': 'A warm 1-sentence response', 'matches': [{{'name': '...', 'speciality': '...', 'company': '...', 'confidence': 90, 'reason': '...', 'email': '...'}}]}}"""
+    
+    raw_json, err = gemini_call(prompt)
     if not err:
-        summary = "\n".join([" | ".join(map(str, row)) for row in df.values])
-        prompt = f"Match this query: '{user_query}' against these pros: {summary}. Return JSON: {{'reply': '...', 'matches': [{{'name': '...', 'confidence': 90, 'reason': '...'}}]}}"
-        raw_json, call_err = gemini_call(prompt)
-        
-        if not call_err:
+        try:
             res_data = json.loads(raw_json)
             st.session_state.messages.append({"role": "assistant", "content": {"type": "result", "result": res_data}})
-        else:
-            st.session_state.messages.append({"role": "assistant", "content": f"Error: {call_err}"})
+        except:
+            st.session_state.messages.append({"role": "assistant", "content": "I found a match, but had a technical hiccup displaying it. Could you please try again with more detail?"})
     
     st.session_state.processing = False
     st.rerun()
 
-# ── INITIAL MESSAGE ──
+# Initial Greeting
 if not st.session_state.messages:
-    st.session_state.messages.append({"role": "assistant", "content": "Welcome back. I'm connected to the Syndesi network. Describe your legal or business challenge, and I'll find the right specialist for you."})
+    st.session_state.messages.append({"role": "assistant", "content": "Welcome back. I'm the Syndesi Concierge. Describe your business or legal challenge, and I'll find the best specialist for you."})
     st.rerun()
+
+st.markdown('</div>', unsafe_allow_html=True)
