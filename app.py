@@ -274,7 +274,7 @@ section[data-testid="stMain"] > div { padding: 0 0 90px 0 !important; }
 
 /* Chat body */
 .chat-body {
-    padding: 32px 44px 16px;
+    padding: 32px 22px 16px;
     max-width: 900px; width: 100%; margin: 0 auto;
 }
 
