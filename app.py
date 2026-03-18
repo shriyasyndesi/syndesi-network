@@ -199,6 +199,15 @@ section[data-testid="stMain"] {
 section[data-testid="stMain"] > div {
     padding: 0 !important;
 }
+
+/* Gap between sidebar and main content */
+.main .block-container {
+    margin-left: 0 !important;
+}
+section[data-testid="stMain"] {
+    border-left: 6px solid #E8E8EC !important;
+    background: #F0F0F3 !important;
+}
 [data-testid="stSidebar"] {
     background: #161618 !important;
     border-right: 1px solid rgba(255,255,255,0.06) !important;
@@ -269,7 +278,7 @@ section[data-testid="stMain"] > div {
 .chat-header {
     background: white;
     border-bottom: 1px solid #E8E8EC;
-    padding: 16px 40px;
+    padding: 16px 44px 16px 44px;
     display: flex; align-items: center; gap: 12px;
     box-shadow: 0 1px 8px rgba(0,0,0,0.05);
     flex-shrink: 0;
@@ -289,9 +298,9 @@ section[data-testid="stMain"] > div {
 
 .chat-body {
     flex: 1; overflow-y: auto;
-    padding: 32px 40px 24px;
+    padding: 32px 44px 24px 44px;
     display: flex; flex-direction: column; gap: 0;
-    max-width: 860px; width: 100%; margin: 0 auto;
+    max-width: 900px; width: 100%; margin: 0 auto;
 }
 
 /* Bubbles */
@@ -436,7 +445,7 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 /* Chat input bar */
 .chat-input-wrap {
     border-top: 1px solid #E8E8EC;
-    background: white; padding: 16px 40px 20px;
+    background: white; padding: 16px 44px 20px;
     flex-shrink: 0;
 }
 .input-hint {
