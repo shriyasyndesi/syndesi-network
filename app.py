@@ -28,6 +28,11 @@ st.markdown(f"""
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(5px); }} to {{ opacity: 1; transform: translateY(0); }} }}
 
     
+    .avatar {{
+        width: 32px; height: 32px; border-radius: 6px;
+        background: #E8651A; display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 4px; font-size: 18px;
+    }}
     .msg-content {{ font-size: 15px; line-height: 1.6; color: #374151; }}
     .user-msg-box {{
         background: #ECECF1; padding: 12px 16px; border-radius: 15px; 
@@ -124,6 +129,7 @@ for msg in st.session_state.messages:
         if isinstance(content, str):
             st.markdown(f"""
                 <div class="chat-bubble-container">
+                    <div class="avatar">🧠</div>
                     <div class="msg-content">{content}</div>
                 </div>
             """, unsafe_allow_html=True)
@@ -131,6 +137,7 @@ for msg in st.session_state.messages:
             res = content["result"]
             st.markdown(f"""
                 <div class="chat-bubble-container">
+                    <div class="avatar">🧠</div>
                     <div class="msg-content">{res.get('reply', '')}</div>
                 </div>
             """, unsafe_allow_html=True)
