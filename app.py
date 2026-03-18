@@ -89,8 +89,7 @@ st.markdown(f"""
     * {{ box-sizing: border-box; }}
     .stApp {{ background: #F4F4F6 !important; font-family: 'Plus Jakarta Sans', sans-serif !important; }}
     [data-testid="stHeader"], [data-testid="stToolbar"] {{ display: none !important; }}
-    .block-container {{ max-width: 720px !important; padding: 0 0 90px 0 !important; margin: 0 auto; }}
-    section[data-testid="stMain"] > div {{ padding: 0 !important; }}
+    .block-container {{ max-width: 720px !important; padding: 0 0 20px 0 !important; margin: 0 auto; }}
 
     /* ── HEADER ── */
     .s-header {{
@@ -242,11 +241,8 @@ st.markdown(f"""
     }}
 
     /* ── CHAT INPUT AREA ── */
-    .input-area {{
-        background: white;
-        border-top: 1px solid #EBEBED;
-        padding: 14px 20px 10px;
-        margin-top: 8px;
+    div[data-testid="stTextInput"] {{
+        padding: 0 20px 16px;
     }}
     .stTextInput > div > div > input {{
         border-radius: 12px !important;
@@ -319,35 +315,35 @@ def render_expert(expert):
     email      = str(expert.get("Email", "")).strip()
     phone      = str(expert.get("Phone", "")).strip()
 
-    email_html = f'''
-        <div class="contact-item">
-            <div class="contact-icon">✉️</div>
-            <span class="contact-text">{email}</span>
-        </div>''' if email and email != "nan" else ""
+    contact_rows = ""
+    if email and email != "nan":
+        contact_rows += (
+            "<div class=\"contact-item\">"
+            "<div class=\"contact-icon\">&#9993;</div>"
+            "<span class=\"contact-text\">" + email + "</span>"
+            "</div>"
+        )
+    if phone and phone != "nan":
+        contact_rows += (
+            "<div class=\"contact-item\">"
+            "<div class=\"contact-icon\">&#128222;</div>"
+            "<span class=\"contact-text\">" + phone + "</span>"
+            "</div>"
+        )
 
-    phone_html = f'''
-        <div class="contact-item">
-            <div class="contact-icon">📞</div>
-            <span class="contact-text">{phone}</span>
-        </div>''' if phone and phone != "nan" else ""
-
-    card_html = f'''
-        <div class="expert-card">
-            <div class="expert-header">
-                <div class="expert-initials">{initials(name)}</div>
-                <div class="expert-info">
-                    <div class="expert-name">{name}</div>
-                    <div class="expert-co">{company}</div>
-                </div>
-            </div>
-            <div class="spec-tag">{speciality[:60]}</div>
-            <div class="contact-row">
-                {email_html}
-                {phone_html}
-            </div>
-            <a href="{SYNDESI_LINK}" target="_blank" class="syndesi-btn">&#128279; Contact on Syndesi</a>
-        </div>
-    '''
+    card_html = (
+        "<div class=\"expert-card\">"
+        "<div class=\"expert-header\">"
+        "<div class=\"expert-initials\">" + initials(name) + "</div>"
+        "<div class=\"expert-info\">"
+        "<div class=\"expert-name\">" + name + "</div>"
+        "<div class=\"expert-co\">" + company + "</div>"
+        "</div></div>"
+        "<div class=\"spec-tag\">" + speciality[:60] + "</div>"
+        "<div class=\"contact-row\">" + contact_rows + "</div>"
+        "<a href=\"" + SYNDESI_LINK + "\" target=\"_blank\" class=\"syndesi-btn\">&#128279; Contact on Syndesi</a>"
+        "</div>"
+    )
     st.markdown(card_html, unsafe_allow_html=True)
 
 # ── CHAT AREA ──
@@ -456,12 +452,13 @@ elif st.session_state.step == "results":
         st.rerun()
 
 # ── INPUT ──
-st.markdown('<div class="input-area">', unsafe_allow_html=True)
+st.markdown("<div style='height:1px; background:#EBEBED; margin: 16px 0 8px;'></div>", unsafe_allow_html=True)
 keyword = st.text_input(
     "keyword",
     value=st.session_state.get("keyword", ""),
     placeholder="💬 Type a keyword to filter results, e.g. 'capital allowance', 'probate'...",
-    key="keyword_input"
+    key="keyword_input",
+    label_visibility="collapsed"
 )
 if keyword != st.session_state.get("keyword", ""):
     st.session_state.keyword = keyword
