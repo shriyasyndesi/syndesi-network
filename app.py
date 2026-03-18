@@ -178,53 +178,30 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
 
 .stApp {
     background: #F0F0F3 !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
+
+/* Hide Streamlit chrome */
 [data-testid="stHeader"],
 [data-testid="stToolbar"],
 [data-testid="stDecoration"] { display: none !important; }
 
-/* Remove ALL default Streamlit padding */
-.block-container {
-    padding: 0 !important;
-    max-width: 100% !important;
-}
-section[data-testid="stMain"] {
-    padding: 0 !important;
-}
-section[data-testid="stMain"] > div {
-    padding: 0 !important;
-}
+/* Main content area */
+.block-container { padding: 0 !important; max-width: 100% !important; }
+section[data-testid="stMain"] { padding: 0 !important; background: #F0F0F3 !important; }
+section[data-testid="stMain"] > div { padding: 0 !important; }
 
-/* Gap between sidebar and main content */
-.main .block-container {
-    margin-left: 0 !important;
-}
-section[data-testid="stMain"] {
-    border-left: 12px solid #E2E2E6 !important;
-    background: #F0F0F3 !important;
-}
-[data-testid="stSidebar"] {
-    background: #161618 !important;
-    border-right: 1px solid rgba(255,255,255,0.06) !important;
-}
-[data-testid="stSidebar"] > div {
-    padding: 0 !important;
-}
+/* Sidebar */
+[data-testid="stSidebar"] { background: #161618 !important; border-right: none !important; }
+[data-testid="stSidebar"] > div { padding: 0 !important; }
 
-/* ── SIDEBAR ── */
-.sb-header {
-    padding: 28px 22px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    margin-bottom: 4px;
-}
-.sb-brand {
-    display: flex; align-items: center; gap: 11px; margin-bottom: 3px;
-}
+/* Sidebar content */
+.sb-header { padding: 28px 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.sb-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 3px; }
 .sb-icon {
     width: 34px; height: 34px;
     background: linear-gradient(135deg, #E8651A, #F0853A);
@@ -239,49 +216,47 @@ section[data-testid="stMain"] {
     text-transform: uppercase; letter-spacing: 1.2px;
     padding: 20px 22px 10px;
 }
-.sb-empty {
-    padding: 16px 22px 20px; text-align: center;
-    color: #46464A; font-size: 12.5px; line-height: 1.6;
-    font-style: italic;
-}
-.sb-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 22px; cursor: pointer;
-    border-left: 2px solid transparent;
-    transition: all 0.15s; gap: 8px;
-}
+.sb-empty { padding: 16px 22px 20px; text-align: center; color: #46464A; font-size: 12.5px; line-height: 1.6; font-style: italic; }
+.sb-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 22px; border-left: 2px solid transparent; transition: all 0.15s; gap: 8px; }
 .sb-item:hover { background: rgba(255,255,255,0.05); border-left-color: #E8651A; }
 .sb-item-label { font-size: 12.5px; color: #C8C8CE; font-weight: 500; line-height: 1.45; flex: 1; }
 .sb-item-time { font-size: 10px; color: #46464A; flex-shrink: 0; }
-.sb-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 12px 0; }
-.sb-new-btn {
-    margin: 14px 22px 0;
-    display: block; text-align: center;
-    background: linear-gradient(135deg, #E8651A, #D45515);
-    color: white !important;
-    padding: 11px; border-radius: 10px;
-    font-size: 13px; font-weight: 700;
-    text-decoration: none; cursor: pointer;
-    box-shadow: 0 2px 10px rgba(232,101,26,0.35);
-    transition: all 0.15s;
+
+/* Sidebar New Search button */
+[data-testid="stSidebar"] .stButton > button {
+    background: linear-gradient(135deg, #E8651A, #D45515) !important;
+    border: none !important; border-radius: 10px !important;
+    color: white !important; font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 700 !important; font-size: 13px !important;
+    padding: 11px 18px !important; width: 100% !important;
+    box-shadow: 0 2px 10px rgba(232,101,26,0.35) !important;
+    transition: all 0.15s !important;
 }
-.sb-new-btn:hover {
-    box-shadow: 0 4px 16px rgba(232,101,26,0.5);
-    transform: translateY(-1px);
+[data-testid="stSidebar"] .stButton > button:hover {
+    box-shadow: 0 4px 16px rgba(232,101,26,0.5) !important;
+    transform: translateY(-1px) !important;
+    color: white !important;
+}
+/* Sidebar restore ↩ buttons */
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 8px !important; color: #C8C8CE !important;
+    font-size: 13px !important; padding: 6px 10px !important;
+    font-weight: 500 !important; box-shadow: none !important;
+    transform: none !important;
+}
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button:hover {
+    background: rgba(232,101,26,0.2) !important;
+    border-color: #E8651A !important; color: #E8651A !important;
+    transform: none !important;
 }
 
-/* ── MAIN CHAT AREA ── */
-.main-wrap {
-    display: flex; flex-direction: column;
-    height: 100vh; overflow: hidden;
-}
+/* Chat header */
 .chat-header {
-    background: white;
-    border-bottom: 1px solid #E8E8EC;
-    padding: 16px 44px 16px 44px;
-    display: flex; align-items: center; gap: 12px;
+    background: white; border-bottom: 1px solid #E8E8EC;
+    padding: 16px 44px; display: flex; align-items: center; gap: 12px;
     box-shadow: 0 1px 8px rgba(0,0,0,0.05);
-    flex-shrink: 0;
 }
 .hdr-icon {
     width: 36px; height: 36px;
@@ -296,14 +271,13 @@ section[data-testid="stMain"] {
     background: #F4F4F6; padding: 4px 12px; border-radius: 20px;
 }
 
+/* Chat body */
 .chat-body {
-    flex: 1; overflow-y: auto;
-    padding: 32px 44px 24px 44px;
-    display: flex; flex-direction: column; gap: 0;
+    padding: 32px 44px 24px;
     max-width: 900px; width: 100%; margin: 0 auto;
 }
 
-/* Bubbles */
+/* Bot bubble */
 .bubble-bot { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; }
 .bot-av {
     width: 30px; height: 30px;
@@ -316,9 +290,10 @@ section[data-testid="stMain"] {
     background: white; border: 1px solid #E8E8EC;
     border-radius: 4px 16px 16px 16px;
     padding: 12px 16px; font-size: 14px; color: #1A1A1A;
-    line-height: 1.65; box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-    max-width: 80%;
+    line-height: 1.65; box-shadow: 0 1px 6px rgba(0,0,0,0.05); max-width: 80%;
 }
+
+/* User bubble */
 .user-bubble-wrap { display: flex; justify-content: flex-end; margin-bottom: 16px; }
 .user-msg {
     background: linear-gradient(135deg, #E8651A, #D45515);
@@ -328,29 +303,25 @@ section[data-testid="stMain"] {
     box-shadow: 0 2px 10px rgba(232,101,26,0.3);
 }
 
-/* Option buttons */
+/* Category / subcategory buttons */
 div[data-testid="stHorizontalBlock"] .stButton > button {
-    background: white !important;
-    border: 1.5px solid #E2E2E6 !important;
-    border-radius: 10px !important;
-    color: #2D2D2D !important;
+    background: white !important; border: 1.5px solid #E2E2E6 !important;
+    border-radius: 12px !important; color: #2D2D2D !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-weight: 600 !important; font-size: 13px !important;
-    padding: 10px 14px !important; width: 100% !important;
-    text-align: left !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+    padding: 11px 16px !important; width: 100% !important;
+    text-align: left !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
     transition: all 0.15s !important;
 }
 div[data-testid="stHorizontalBlock"] .stButton > button:hover {
     border-color: #E8651A !important; color: #E8651A !important;
-    box-shadow: 0 2px 8px rgba(232,101,26,0.15) !important;
+    box-shadow: 0 2px 10px rgba(232,101,26,0.15) !important;
     transform: translateY(-1px) !important;
 }
 
-/* Show all / restart - main area */
+/* Show all / restart buttons */
 div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button {
-    background: transparent !important;
-    border: 1.5px solid #E2E2E6 !important;
+    background: transparent !important; border: 1.5px solid #E2E2E6 !important;
     border-radius: 10px !important; color: #6B7280 !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-weight: 600 !important; font-size: 13px !important;
@@ -359,57 +330,21 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button {
 div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover {
     border-color: #E8651A !important; color: #E8651A !important;
 }
-/* Sidebar New Search button */
-[data-testid="stSidebar"] .stButton > button {
-    background: linear-gradient(135deg, #E8651A, #D45515) !important;
-    border: none !important;
-    border-radius: 10px !important; color: white !important;
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-weight: 700 !important; font-size: 13px !important;
-    padding: 11px 18px !important;
-    box-shadow: 0 2px 10px rgba(232,101,26,0.35) !important;
-    transition: all 0.15s !important;
-    width: 100% !important;
-}
-[data-testid="stSidebar"] .stButton > button:hover {
-    box-shadow: 0 4px 16px rgba(232,101,26,0.5) !important;
-    transform: translateY(-1px) !important;
-    background: linear-gradient(135deg, #F0753A, #E8651A) !important;
-    color: white !important;
-}
-/* Sidebar restore buttons */
-[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button {
-    background: rgba(255,255,255,0.06) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    border-radius: 8px !important; color: #C8C8CE !important;
-    font-size: 13px !important; padding: 6px 10px !important;
-    font-weight: 500 !important; width: auto !important;
-    box-shadow: none !important;
-}
-[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button:hover {
-    background: rgba(232,101,26,0.2) !important;
-    border-color: #E8651A !important; color: #E8651A !important;
-    transform: none !important; box-shadow: none !important;
-}
 
 /* Expert card */
 .expert-card {
-    background: white; border: 1px solid #E8E8EC;
-    border-radius: 16px; padding: 20px 22px; margin-bottom: 10px;
+    background: white; border: 1px solid #E8E8EC; border-radius: 16px;
+    padding: 20px 22px; margin-bottom: 10px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.05);
     transition: box-shadow 0.2s, transform 0.2s;
 }
-.expert-card:hover {
-    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
-    transform: translateY(-1px);
-}
+.expert-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.09); transform: translateY(-1px); }
 .expert-header { display: flex; align-items: flex-start; gap: 12px; }
 .expert-initials {
     width: 44px; height: 44px; border-radius: 12px;
     background: linear-gradient(135deg, #FFF0E6, #FFD9BE);
     color: #E8651A; font-weight: 800; font-size: 15px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; letter-spacing: -0.5px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .expert-info { flex: 1; }
 .expert-name { font-weight: 700; font-size: 16px; color: #0F0F0F; margin-bottom: 2px; }
@@ -423,89 +358,43 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 .contact-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .contact-item { display: flex; align-items: center; gap: 8px; }
 .contact-icon {
-    width: 26px; height: 26px; background: #F4F4F6;
-    border-radius: 6px; display: flex; align-items: center;
-    justify-content: center; font-size: 13px; flex-shrink: 0;
+    width: 26px; height: 26px; background: #F4F4F6; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
 }
 .contact-text { font-size: 13px; color: #374151; font-weight: 500; }
 .syndesi-btn {
     display: inline-flex; align-items: center; gap: 7px;
     background: linear-gradient(135deg, #E8651A, #D45515);
     color: white !important; text-decoration: none;
-    padding: 9px 18px; border-radius: 10px;
-    font-size: 13px; font-weight: 700;
-    box-shadow: 0 2px 10px rgba(232,101,26,0.35);
-    transition: all 0.15s;
+    padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700;
+    box-shadow: 0 2px 10px rgba(232,101,26,0.35); transition: all 0.15s;
 }
-.syndesi-btn:hover {
-    box-shadow: 0 4px 16px rgba(232,101,26,0.45);
-    transform: translateY(-1px); color: white !important;
-}
+.syndesi-btn:hover { box-shadow: 0 4px 16px rgba(232,101,26,0.45); transform: translateY(-1px); color: white !important; }
 
-/* Chat input bar */
-/* chat_input — clean iMessage-style bar */
+/* Chat input */
 [data-testid="stChatInput"] {
     background: white !important;
-    border-top: 1px solid #EBEBED !important;
-    padding: 14px 44px 18px !important;
-    box-shadow: 0 -2px 16px rgba(0,0,0,0.06) !important;
-}
-[data-testid="stChatInput"] > div {
-    background: #F4F4F6 !important;
-    border-radius: 24px !important;
-    border: 1.5px solid #E2E2E6 !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    transition: border-color 0.15s, box-shadow 0.15s !important;
-}
-[data-testid="stChatInput"] > div:focus-within {
-    border-color: #E8651A !important;
-    box-shadow: 0 0 0 3px rgba(232,101,26,0.1) !important;
-    background: white !important;
+    border-top: 1px solid #E8E8EC !important;
+    padding: 16px 44px 20px !important;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.05) !important;
 }
 [data-testid="stChatInput"] textarea {
-    background: transparent !important;
-    border: none !important;
-    border-radius: 24px !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 14.5px !important;
-    padding: 13px 18px !important;
-    color: #1A1A1A !important;
-    box-shadow: none !important;
-    resize: none !important;
-    line-height: 1.5 !important;
-}
-[data-testid="stChatInput"] textarea:focus {
-    outline: none !important;
-    box-shadow: none !important;
+    font-size: 14px !important; color: #1A1A1A !important;
 }
 [data-testid="stChatInput"] textarea::placeholder {
-    color: #ABABAB !important;
-    font-size: 14px !important;
-    font-weight: 400 !important;
-}
-[data-testid="stChatInputSubmitButton"] {
-    margin-right: 6px !important;
+    color: #ABABAB !important; font-size: 14px !important;
 }
 [data-testid="stChatInputSubmitButton"] button {
     background: linear-gradient(135deg, #E8651A, #D45515) !important;
-    border-radius: 50% !important;
     border: none !important;
-    width: 34px !important; height: 34px !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
-    box-shadow: 0 2px 8px rgba(232,101,26,0.4) !important;
-    transition: all 0.15s !important;
-}
-[data-testid="stChatInputSubmitButton"] button:hover {
-    box-shadow: 0 4px 14px rgba(232,101,26,0.5) !important;
-    transform: scale(1.05) !important;
 }
 
 .divider { border: none; border-top: 1px solid #E8E8EC; margin: 20px 0 16px; }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 # ── SIDEBAR ──
 with st.sidebar:
