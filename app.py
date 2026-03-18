@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1mjEM2jJ69Qc0m5R1mdw6wjsPhRJ0mscNhMJLwNdRM7Q/export?format=csv"
-LOGO_URL = "https://www.syndesi.network/syndesi_logo_white_on_orange.png" # Updated to Syndesi asset
+LOGO_URL = "https://www.syndesi.network/syndesi_logo_white_on_orange.png"
 
 st.set_page_config(
     page_title="Syndesi Concierge",
@@ -18,125 +18,151 @@ st.set_page_config(
     layout="wide",
 )
 
-# ── REFINED MODERN UI ──
-st.markdown("""
+# ── WHATSAPP-STYLE MODERN UI ──
+st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-/* Global Styles */
-.stApp {
-    background-color: #F9F8F6 !important;
-}
+.stApp {{
+    background-color: #F0F2F5 !important; /* WhatsApp Web background */
+}}
 
-[data-testid="stHeader"], [data-testid="stToolbar"] { display: none !important; }
+[data-testid="stHeader"], [data-testid="stToolbar"] {{ display: none !important; }}
 
-.main-container {
+.main-container {{
     max-width: 700px;
     margin: 0 auto;
-    padding: 20px 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
+    padding-bottom: 120px; /* Space for fixed input */
+    font-family: 'Inter', sans-serif;
+}}
 
 /* Header */
-.header-area {
-    text-align: center;
-    margin-bottom: 40px;
-    padding-top: 20px;
-}
-.brand-logo-img {
-    width: 60px;
-    margin-bottom: 12px;
-    border-radius: 12px;
-}
-
-/* Chat Row Layout */
-.chat-row {
+.chat-header {{
+    background: #FFFFFF;
+    padding: 15px 20px;
     display: flex;
+    align-items: center;
+    gap: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid #E9EDEF;
     margin-bottom: 20px;
-    width: 100%;
-    animation: fadeIn 0.3s ease-in;
-}
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.bot-row { justify-content: flex-start; }
-.user-row { justify-content: flex-end; }
-
-.bubble {
-    padding: 14px 20px;
-    border-radius: 20px;
-    font-size: 15px;
-    line-height: 1.6;
-    max-width: 85%;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-}
-.bot-bubble {
-    background: white;
-    color: #1C1917;
-    border: 1px solid #EEEBE6;
-    border-bottom-left-radius: 4px;
-}
-.user-bubble {
-    background: #1C1917;
-    color: #FFFFFF;
-    border-bottom-right-radius: 4px;
-}
-
-/* Expert Result Cards */
-.expert-card {
-    background: white;
-    border-radius: 20px;
-    padding: 24px;
-    margin: 12px 0 20px 0;
-    border: 1px solid #EAE8E4;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-}
-.match-badge {
-    background: #FDF0E8;
-    color: #E8651A;
-    padding: 5px 12px;
-    border-radius: 100px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-.expert-name { font-weight: 700; font-size: 18px; margin: 12px 0 4px; color: #1C1917; }
-.expert-meta { color: #E8651A; font-weight: 600; font-size: 14px; margin-bottom: 12px; }
-.expert-reason { color: #57534E; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
-
-.action-btn {
-    display: block;
-    text-align: center;
+}}
+.header-avatar {{
+    width: 40px; height: 40px;
+    border-radius: 50%;
     background: #E8651A;
-    color: white !important;
-    text-decoration: none;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    transition: background 0.2s;
-}
-.action-btn:hover { background: #D65A17; }
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}}
 
-/* Input Bar Fix */
-.stTextInput > div > div > input {
-    background-color: white !important;
-    border-radius: 14px !important;
-    border: 1px solid #DEDAD6 !important;
-    padding: 14px 20px !important;
-    font-size: 15px !important;
-}
+/* Chat Bubbles */
+.chat-row {{
+    display: flex;
+    margin-bottom: 12px;
+    width: 100%;
+}}
+.bot-row {{ justify-content: flex-start; }}
+.user-row {{ justify-content: flex-end; }}
+
+.bubble {{
+    padding: 10px 15px;
+    font-size: 14.5px;
+    max-width: 75%;
+    position: relative;
+    box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+}}
+.bot-bubble {{
+    background: #FFFFFF;
+    color: #111B21;
+    border-radius: 0 10px 10px 10px;
+}}
+.user-bubble {{
+    background: #D9FDD3; /* WhatsApp User Green */
+    color: #111B21;
+    border-radius: 10px 0 10px 10px;
+}}
+
+/* Expert Results */
+.expert-card {{
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 10px;
+    border-left: 4px solid #E8651A;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}}
+.expert-name {{ font-weight: 600; font-size: 16px; margin-bottom: 2px; }}
+.expert-meta {{ color: #E8651A; font-size: 13px; font-weight: 500; margin-bottom: 8px; }}
+
+.action-btn {{
+    display: inline-block;
+    background: #111B21;
+    color: white !important;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 13px;
+    text-decoration: none;
+    margin-top: 10px;
+}}
+
+/* Fixed Bottom Input Bar */
+.bottom-bar {{
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #F0F2F5;
+    padding: 15px;
+    border-top: 1px solid #E9EDEF;
+    display: flex;
+    justify-content: center;
+    z-index: 2000;
+}}
+.input-container {{
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}}
+
+/* Customizing the Streamlit text_input */
+.stTextInput > div > div > input {{
+    border-radius: 25px !important;
+    border: none !important;
+    padding: 12px 20px !important;
+    background: white !important;
+}}
+
+.stButton > button {{
+    border-radius: 50% !important;
+    width: 45px !important;
+    height: 45px !important;
+    padding: 0 !important;
+    background-color: #E8651A !important;
+    color: white !important;
+    border: none !important;
+}}
+
+/* Loading Animation */
+@keyframes pulse {{ 0% {{ opacity: 0.5; }} 50% {{ opacity: 1; }} 100% {{ opacity: 0.5; }} }}
+.searching {{
+    font-size: 13px;
+    color: #667781;
+    font-style: italic;
+    animation: pulse 1.5s infinite;
+    margin-left: 20px;
+}}
 </style>
 """, unsafe_allow_html=True)
 
-# ── CORE FUNCTIONS ──
+# ── FUNCTIONS ──
 def load_professionals():
     try:
         df = pd.read_csv(SHEET_URL)
         df.columns = [str(c).strip() for c in df.columns]
         return df.dropna(how="all"), None
-    except Exception as e:
-        return None, str(e)
+    except Exception as e: return None, str(e)
 
 def gemini_call(prompt):
     if not GEMINI_API_KEY: return None, "Missing API Key"
@@ -158,19 +184,22 @@ if "messages" not in st.session_state:
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
-# ── APP LAYOUT ──
-st.markdown('<div class="main-container">', unsafe_allow_html=True)
-
-# Header with Logo
+# ── HEADER ──
 st.markdown(f"""
-    <div class="header-area">
-        <img src="{LOGO_URL}" class="brand-logo-img" onerror="this.src='https://www.syndesi.network/favicon.ico'">
-        <h2 style="margin:0; color:#1C1917; font-weight:700; letter-spacing:-0.02em;">Syndesi Concierge</h2>
-        <p style="color:#78716C; font-size:14px; margin-top:5px;">Intelligent Expert Matching Network</p>
+    <div class="chat-header">
+        <div class="header-avatar">
+            <img src="{LOGO_URL}" width="40" onerror="this.src='https://www.syndesi.network/favicon.ico'">
+        </div>
+        <div>
+            <div style="font-weight: 600; color: #111B21; font-size: 16px;">Syndesi Concierge</div>
+            <div style="color: #667781; font-size: 13px;">Online</div>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
-# Chat Display
+st.markdown('<div class="main-container">', unsafe_allow_html=True)
+
+# ── MESSAGES ──
 for msg in st.session_state.messages:
     if msg["role"] == "user":
         st.markdown(f'<div class="chat-row user-row"><div class="bubble user-bubble">{msg["content"]}</div></div>', unsafe_allow_html=True)
@@ -179,33 +208,51 @@ for msg in st.session_state.messages:
         if isinstance(content, dict) and content.get("type") == "result":
             res = content["result"]
             st.markdown(f'<div class="chat-row bot-row"><div class="bubble bot-bubble">{res.get("reply")}</div></div>', unsafe_allow_html=True)
-            
             for m in res.get("matches", []):
                 st.markdown(f"""
                     <div class="expert-card">
-                        <span class="match-badge">{m.get('confidence')}% Match</span>
                         <div class="expert-name">{m.get('name')}</div>
                         <div class="expert-meta">{m.get('speciality')} · {m.get('company')}</div>
-                        <div class="expert-reason">{m.get('reason')}</div>
-                        <a href="mailto:{m.get('email')}?subject=Syndesi Concierge Referral" class="action-btn">Connect via Email</a>
+                        <div style="font-size:13.5px; color:#54656f;">{m.get('reason')}</div>
+                        <a href="mailto:{m.get('email')}" class="action-btn">Message</a>
                     </div>
                 """, unsafe_allow_html=True)
         else:
             st.markdown(f'<div class="chat-row bot-row"><div class="bubble bot-bubble">{content}</div></div>', unsafe_allow_html=True)
 
-# Input area
-st.write("") # Spacer
-user_query = st.text_input("Describe your situation", key="user_input", placeholder="How can we help you today?", label_visibility="collapsed")
+# ── SEARCHING STATE ──
+if st.session_state.processing:
+    st.markdown('<div class="searching">Syndesi is searching the network...</div>', unsafe_allow_html=True)
 
-if user_query and not st.session_state.processing:
-    st.session_state.processing = True
-    st.session_state.messages.append({"role": "user", "content": user_query})
+st.markdown('</div>', unsafe_allow_html=True)
+
+# ── BOTTOM INPUT BAR ──
+with st.container():
+    st.markdown('<div class="bottom-bar"><div class="input-container">', unsafe_allow_html=True)
     
+    col1, col2 = st.columns([0.85, 0.15])
+    with col1:
+        u_input = st.text_input("msg", placeholder="Type a message", label_visibility="collapsed", key="user_query")
+    with col2:
+        send_clicked = st.button("➤", key="send_btn")
+    
+    st.markdown('</div></div>', unsafe_allow_html=True)
+
+# ── LOGIC ──
+if (send_clicked or (u_input and u_input != st.session_state.get('prev_input'))) and u_input.strip() and not st.session_state.processing:
+    st.session_state.prev_input = u_input
+    st.session_state.processing = True
+    st.session_state.messages.append({"role": "user", "content": u_input})
+    
+    # Force a rerun to show the "Searching" state immediately
+    st.rerun()
+
+# Processing actual API call after rerun
+if st.session_state.processing and st.session_state.messages[-1]["role"] == "user":
     df, _ = load_professionals()
     summary = "\n".join([" | ".join(map(str, row)) for row in df.values])
     
-    prompt = f"""Match this query: '{user_query}' against these professionals: {summary}. 
-    Return ONLY valid JSON: {{'reply': 'A warm 1-sentence response', 'matches': [{{'name': '...', 'speciality': '...', 'company': '...', 'confidence': 90, 'reason': '...', 'email': '...'}}]}}"""
+    prompt = f"Match query: '{st.session_state.messages[-1]['content']}' against network: {summary}. Return JSON: {{'reply': '...', 'matches': [{{'name': '...', 'speciality': '...', 'company': '...', 'reason': '...', 'email': '...'}}]}}"
     
     raw_json, err = gemini_call(prompt)
     if not err:
@@ -213,14 +260,12 @@ if user_query and not st.session_state.processing:
             res_data = json.loads(raw_json)
             st.session_state.messages.append({"role": "assistant", "content": {"type": "result", "result": res_data}})
         except:
-            st.session_state.messages.append({"role": "assistant", "content": "I found a match, but had a technical hiccup displaying it. Could you please try again with more detail?"})
+            st.session_state.messages.append({"role": "assistant", "content": "I couldn't process that. Try again?"})
     
     st.session_state.processing = False
     st.rerun()
 
 # Initial Greeting
 if not st.session_state.messages:
-    st.session_state.messages.append({"role": "assistant", "content": "Welcome back. I'm the Syndesi Concierge. Describe your business or legal challenge, and I'll find the best specialist for you."})
+    st.session_state.messages.append({"role": "assistant", "content": "Hi! I'm the Syndesi Concierge. How can I help you today?"})
     st.rerun()
-
-st.markdown('</div>', unsafe_allow_html=True)
