@@ -193,7 +193,7 @@ st.markdown("""
 /* Main content area */
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section[data-testid="stMain"] { padding: 0 !important; background: #F0F0F3 !important; }
-section[data-testid="stMain"] > div { padding: 0 0 90px 0 !important; }
+section[data-testid="stMain"] > div { padding: 0 0 45px 0 !important; }
 
 /* Sidebar */
 [data-testid="stSidebar"] { background: #161618 !important; border-right: 1px solid #2A2A2C !important; box-shadow: 4px 0 24px rgba(0,0,0,0.18) !important; }
