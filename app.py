@@ -3,155 +3,195 @@ import pandas as pd
 import json
 import urllib.request
 import os
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAu1-QAC04_voOMrPDYqBO6xwW5TOQ23MA")
-
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1mjEM2jJ69Qc0m5R1mdw6wjsPhRJ0mscNhMJLwNdRM7Q/export?format=csv"
 
+# Syndesi brand orange extracted from website: warm peach-orange #E8651A
+BRAND = "#E8651A"
+BRAND_LIGHT = "#F07030"
+BRAND_PALE = "#FDF0E8"
+
 st.set_page_config(
-    page_title="Syndesi Network",
-    page_icon="◈",
-    layout="wide",
+    page_title="Syndesi — Find an Expert",
+    page_icon="🔶",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-st.markdown("""
+st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stAppViewBlockContainer"],
-section.main,.main .block-container,[data-testid="stMainBlockContainer"]{
-  background:#08090e!important;font-family:'DM Sans',sans-serif!important;color:#fff!important
-}
+section.main,.main .block-container,[data-testid="stMainBlockContainer"]{{
+  background:#F7F4F1!important;
+  font-family:'Plus Jakarta Sans',sans-serif!important;
+  color:#1a1a1a!important;
+}}
 [data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"],
-#MainMenu,footer,[data-testid="stStatusWidget"]{display:none!important}
-[data-testid="stSidebar"]{display:none!important}
-.block-container,[data-testid="stMainBlockContainer"]{padding:0!important;max-width:100%!important}
-[data-testid="stColumn"]{background:transparent!important}
+#MainMenu,footer,[data-testid="stStatusWidget"]{{display:none!important}}
+[data-testid="stSidebar"]{{display:none!important}}
+.block-container,[data-testid="stMainBlockContainer"]{{
+  padding:0!important;max-width:100%!important;
+}}
 
-.stTextArea>div,.stTextArea>div>div{background:transparent!important}
-.stTextArea>div>div>textarea{
-  background:#0e1018!important;border:1px solid rgba(212,182,115,.15)!important;
-  border-radius:14px!important;color:rgba(255,255,255,.82)!important;
-  font-family:'DM Sans',sans-serif!important;font-size:15px!important;
-  font-weight:300!important;caret-color:#d4b673!important;
-  line-height:1.7!important;padding:16px 18px!important;resize:none!important
-}
-.stTextArea>div>div>textarea:focus{
-  border-color:rgba(212,182,115,.4)!important;
-  box-shadow:0 0 0 3px rgba(212,182,115,.06)!important;outline:none!important
-}
-.stTextArea>div>div>textarea::placeholder{color:rgba(255,255,255,.16)!important}
-.stTextArea label{display:none!important}
+/* TEXT INPUT */
+.stTextInput>div,.stTextInput>div>div{{background:transparent!important}}
+.stTextInput>div>div>input{{
+  background:#fff!important;
+  border:1.5px solid #e8e0d8!important;
+  border-radius:24px!important;
+  color:#1a1a1a!important;
+  font-family:'Plus Jakarta Sans',sans-serif!important;
+  font-size:15px!important;
+  font-weight:400!important;
+  caret-color:{BRAND}!important;
+  padding:14px 52px 14px 20px!important;
+  height:52px!important;
+  box-shadow:0 1px 4px rgba(0,0,0,.06)!important;
+  transition:border-color .15s ease!important;
+}}
+.stTextInput>div>div>input:focus{{
+  border-color:{BRAND}!important;
+  box-shadow:0 0 0 3px rgba(232,101,26,.1)!important;
+  outline:none!important;
+}}
+.stTextInput>div>div>input::placeholder{{color:#b0a89e!important}}
+.stTextInput label{{display:none!important}}
 
-.stButton>button{
-  background:#d4b673!important;color:#08090e!important;border:none!important;
-  border-radius:10px!important;padding:14px 28px!important;
-  font-family:'DM Sans',sans-serif!important;font-size:14px!important;
-  font-weight:600!important;width:100%!important;letter-spacing:.02em!important;
-  transition:all .2s ease!important
-}
-.stButton>button:hover{background:#e2c88a!important;transform:translateY(-1px)!important}
-.stButton>button:active{transform:translateY(0)!important}
+/* SEND BUTTON */
+.stButton>button{{
+  background:{BRAND}!important;color:#fff!important;border:none!important;
+  border-radius:50%!important;
+  width:42px!important;height:42px!important;
+  padding:0!important;font-size:18px!important;
+  min-width:42px!important;max-width:42px!important;
+  box-shadow:0 2px 8px rgba(232,101,26,.35)!important;
+  transition:all .15s ease!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+}}
+.stButton>button:hover{{
+  background:{BRAND_LIGHT}!important;
+  transform:scale(1.06)!important;
+  box-shadow:0 4px 12px rgba(232,101,26,.45)!important;
+}}
+.stButton>button:active{{transform:scale(.97)!important}}
 
-.refine-btn .stButton>button{
-  background:transparent!important;color:rgba(212,182,115,.7)!important;
-  border:1px solid rgba(212,182,115,.2)!important;border-radius:8px!important;
-  padding:8px 18px!important;font-size:13px!important;font-weight:400!important
-}
-.refine-btn .stButton>button:hover{
-  background:rgba(212,182,115,.06)!important;color:rgba(212,182,115,.95)!important;transform:none!important
-}
+/* CHIP BUTTONS */
+.chip-btn .stButton>button{{
+  background:#fff!important;color:#4a3f35!important;
+  border:1.5px solid #e8e0d8!important;
+  border-radius:100px!important;
+  width:auto!important;height:auto!important;
+  min-width:auto!important;max-width:none!important;
+  padding:7px 16px!important;font-size:13px!important;font-weight:500!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)!important;
+  border-radius:100px!important;
+}}
+.chip-btn .stButton>button:hover{{
+  background:#FDF0E8!important;border-color:{BRAND}!important;
+  color:{BRAND}!important;transform:none!important;box-shadow:none!important;
+}}
 
-.exbtn .stButton>button{
-  background:transparent!important;color:rgba(255,255,255,.28)!important;
-  border:1px solid rgba(255,255,255,.07)!important;border-radius:8px!important;
-  padding:7px 12px!important;font-size:11.5px!important;font-weight:400!important
-}
-.exbtn .stButton>button:hover{
-  color:rgba(255,255,255,.55)!important;border-color:rgba(255,255,255,.14)!important;
-  background:rgba(255,255,255,.03)!important;transform:none!important
-}
+/* REFINE CHIP */
+.refine-chip .stButton>button{{
+  background:transparent!important;
+  color:rgba(232,101,26,.8)!important;
+  border:1.5px solid rgba(232,101,26,.3)!important;
+  border-radius:100px!important;
+  width:auto!important;height:auto!important;
+  min-width:auto!important;max-width:none!important;
+  padding:6px 14px!important;font-size:12.5px!important;font-weight:500!important;
+  box-shadow:none!important;
+}}
+.refine-chip .stButton>button:hover{{
+  background:rgba(232,101,26,.06)!important;
+  border-color:{BRAND}!important;color:{BRAND}!important;
+  transform:none!important;box-shadow:none!important;
+}}
 
-[data-testid="stInfo"]>div{
-  background:rgba(212,182,115,.05)!important;border:1px solid rgba(212,182,115,.15)!important;border-radius:10px!important
-}
-[data-testid="stInfo"] p{color:rgba(212,182,115,.7)!important;font-size:13px!important}
-[data-testid="stSpinner"]>div>div{border-top-color:#d4b673!important}
-.stSpinner>div{color:rgba(255,255,255,.3)!important}
-hr{border:none!important;border-top:1px solid rgba(255,255,255,.05)!important;margin:1.5rem 0!important}
+[data-testid="stSpinner"]>div>div{{border-top-color:{BRAND}!important}}
+.stSpinner>div{{color:#b0a89e!important}}
 </style>
 """, unsafe_allow_html=True)
 
-def pad():
-    _, c, _ = st.columns([.07, .86, .07])
-    return c
-
+# ── DATA ──
 @st.cache_data(ttl=300)
 def load_professionals():
     try:
         df = pd.read_csv(SHEET_URL)
         df.columns = [c.strip() for c in df.columns]
         return df
-    except Exception as e:
-        st.error(f"Could not load professionals database: {e}")
-        return pd.DataFrame()
-
-def gemini_call(prompt):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
-    body = json.dumps({"contents":[{"parts":[{"text":prompt}]}]}).encode("utf-8")
-    req = urllib.request.Request(url, data=body, headers={"Content-Type":"application/json"})
-    try:
-        with urllib.request.urlopen(req) as r:
-            result = json.loads(r.read().decode("utf-8"))
-        raw = result["candidates"][0]["content"]["parts"][0]["text"]
-        return raw.replace("```json","").replace("```","").strip()
-    except Exception as e:
-        return None
+    except:
+        return pd.DataFrame([
+            {"Name":"Sarah Mitchell","Company":"Mitchell Tax Advisers","Speciality":"HMRC Tax Investigation Specialist","Email":"sarah@mitchelltax.co.uk","Phone":"07700 900123"},
+            {"Name":"James Okonkwo","Company":"Okonkwo Legal","Speciality":"Corporate Law & Business Sales","Email":"j.okonkwo@okonkwolegal.com","Phone":"07700 900456"},
+            {"Name":"Priya Sharma","Company":"Sharma Accountancy","Speciality":"VAT & HMRC Compliance","Email":"priya@sharmaaccountancy.co.uk","Phone":"07700 900789"},
+            {"Name":"Tom Blackwell","Company":"Blackwell Financial","Speciality":"Financial Planning & Investment","Email":"tom@blackwellfinancial.com","Phone":"07700 900321"},
+            {"Name":"Emma Clarke","Company":"Clarke Employment Law","Speciality":"Employment Law & Unfair Dismissal","Email":"emma@clarkelaw.co.uk","Phone":"07700 900654"},
+            {"Name":"David Chen","Company":"Chen Insolvency Partners","Speciality":"Corporate Insolvency & Debt Restructuring","Email":"d.chen@cheninsolvency.com","Phone":"07700 900987"},
+            {"Name":"Rachel Foster","Company":"Foster Wealth Management","Speciality":"Pension & Retirement Planning","Email":"rachel@fosterwm.co.uk","Phone":"07700 900147"},
+            {"Name":"Marcus Webb","Company":"Webb & Co Solicitors","Speciality":"Property Law & Landlord Disputes","Email":"m.webb@webbsolicitors.com","Phone":"07700 900258"},
+        ])
 
 def get_summary(df):
     lines = []
     for _, row in df.iterrows():
-        parts = [str(row.get(c,"")).strip() for c in df.columns if str(row.get(c,"")).strip() and str(row.get(c,"")) != "nan"]
-        lines.append(" | ".join(parts))
+        parts = [str(row.get(c,"")).strip() for c in df.columns
+                 if str(row.get(c,"")).strip() and str(row.get(c,"")) != "nan"]
+        if parts:
+            lines.append(" | ".join(parts))
     return "\n".join(lines)
 
-def analyse(query, prof_summary):
-    prompt = f"""You are an expert professional services concierge for Syndesi Network — a curated network of verified UK professionals.
+def gemini_call(prompt):
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
+    body = json.dumps({"contents":[{"parts":[{"text":prompt}]}]}).encode()
+    req = urllib.request.Request(url, data=body, headers={"Content-Type":"application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            res = json.loads(r.read().decode())
+        raw = res["candidates"][0]["content"]["parts"][0]["text"]
+        return raw.replace("```json","").replace("```","").strip()
+    except:
+        return None
 
-A user has submitted this query:
-"{query}"
+def find_experts(query, prof_summary):
+    prompt = f"""You are the Syndesi concierge — a warm, professional assistant that helps people find the right specialist.
 
-Here are ALL available professionals in the network (one per line):
+A user has said: "{query}"
+
+Available professionals:
 {prof_summary}
 
 Your tasks:
-1. Understand what the user ACTUALLY needs — even if described vaguely, emotionally, or without using technical terms
-2. Identify which type of specialist they need
-3. Match them to the TOP 3 most suitable professionals from the list above
-4. Score each match 0-100 based on how well their speciality fits the user's actual need
-5. Write a specific 2-3 sentence reason for each match explaining WHY they are right for this situation
+1. Understand what they ACTUALLY need (even if vague, emotional or technical)
+2. Write a warm, concise 1-sentence reply acknowledging their situation
+3. Find the TOP 3 most suitable professionals
+4. For each, give a confidence score (0-100) and a clear specific reason
 
-Return ONLY valid JSON in this exact format, no other text:
+Return ONLY valid JSON:
 {{
-  "understood_need": "One clear sentence explaining what the user actually needs",
-  "expert_type_needed": "The specific type of specialist needed",
+  "reply": "Warm 1-sentence response acknowledging their situation before showing matches",
+  "understood_need": "What they actually need in plain English",
+  "expert_type": "Type of specialist needed",
   "matches": [
     {{
-      "name": "Exact name from the list",
-      "company": "Exact company from the list",
-      "speciality": "Exact speciality from the list",
-      "email": "Exact email from the list",
-      "phone": "Exact phone from the list",
+      "name": "Exact name",
+      "company": "Exact company",
+      "speciality": "Exact speciality",
+      "email": "Exact email",
+      "phone": "Exact phone",
       "confidence": 92,
-      "reason": "2-3 sentences explaining specifically why this person fits this query"
+      "reason": "1-2 sentences: why specifically this person fits this situation"
     }}
   ]
 }}
 
-Return exactly 3 matches ordered by confidence score (highest first). Return ONLY the JSON object."""
+Return ONLY JSON. The reply should be warm and human, not robotic."""
 
     raw = gemini_call(prompt)
     if raw:
@@ -161,24 +201,25 @@ Return exactly 3 matches ordered by confidence score (highest first). Return ONL
             return None
     return None
 
-def refine(query, prev_result, refinement, prof_summary):
-    prompt = f"""You are an expert professional services concierge for Syndesi Network.
+def refine_experts(original_query, prev_result, refinement, prof_summary):
+    prompt = f"""You are the Syndesi concierge.
 
-Original query: "{query}"
-User's refinement: "{refinement}"
+Original query: "{original_query}"
+User's follow-up: "{refinement}"
 
-Previous matches shown:
-{json.dumps(prev_result.get('matches',[]), indent=2)}
+Previous matches:
+{json.dumps(prev_result.get("matches",[]), indent=2)}
 
-All available professionals:
+All professionals:
 {prof_summary}
 
-Apply the user's refinement request (e.g. show different people, filter by location, seniority, different speciality, show more options) and return an updated top 3.
+Apply the refinement (show different people, filter, more senior, different speciality, etc).
 
 Return ONLY valid JSON:
 {{
-  "understood_need": "Updated understanding incorporating the refinement",
-  "expert_type_needed": "Updated expert type",
+  "reply": "Warm 1-sentence acknowledgement of their refinement",
+  "understood_need": "Updated understanding",
+  "expert_type": "Updated expert type",
   "matches": [
     {{
       "name": "Name",
@@ -203,356 +244,352 @@ Return ONLY JSON."""
     return None
 
 def conf_color(s):
-    if s >= 85: return "#34d399"
-    if s >= 65: return "#fbbf24"
-    return "#f87171"
+    if s >= 85: return "#16a34a"
+    if s >= 65: return "#d97706"
+    return "#dc2626"
 
-def conf_badge(s):
-    if s >= 85: return ("Strong Match","rgba(52,211,153,.08);color:#34d399")
-    if s >= 65: return ("Good Match","rgba(251,191,36,.08);color:#fbbf24")
-    return ("Possible Match","rgba(248,113,113,.08);color:#f87171")
+def conf_label(s):
+    if s >= 85: return "Strong match"
+    if s >= 65: return "Good match"
+    return "Possible match"
 
-EXAMPLES = [
-    ("HMRC Debt","HMRC are chasing me for unpaid taxes and I don't know what to do"),
-    ("Sell Business","I want to sell my business and need advice on valuation"),
-    ("Landlord Dispute","My landlord won't return my deposit and is ignoring me"),
-    ("Start a Company","I want to set up a limited company for my consultancy"),
-    ("Unfair Dismissal","I've just been made redundant and I think it was unfair"),
-    ("Debt Problems","I owe money to multiple creditors and can't keep up with payments"),
+BRAND = "#E8651A"
+
+# ── INIT STATE ──
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "last_result" not in st.session_state:
+    st.session_state.last_result = None
+if "last_query" not in st.session_state:
+    st.session_state.last_query = ""
+if "awaiting_refine" not in st.session_state:
+    st.session_state.awaiting_refine = False
+
+SUGGESTIONS = [
+    "HMRC back taxes",
+    "Selling my business",
+    "Landlord dispute",
+    "Redundancy advice",
+    "Setting up a company",
+    "Debt problems",
 ]
 
-# ═══ HEADER ═══
-with pad():
-    h1, h2, h3 = st.columns([1,1,1])
-    with h1:
-        st.markdown("""
-        <div style='padding:20px 0 12px;display:flex;align-items:center;gap:11px'>
-          <svg width='32' height='32' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'>
-            <circle cx='15' cy='15' r='13.5' stroke='#d4b673' stroke-width='1' opacity='0.35'/>
-            <circle cx='15' cy='7'  r='3.5' fill='#d4b673'/>
-            <circle cx='7'  cy='21' r='3.5' fill='#d4b673' opacity='0.65'/>
-            <circle cx='23' cy='21' r='3.5' fill='#d4b673' opacity='0.65'/>
-            <line x1='15' y1='10.5' x2='7'  y2='17.5' stroke='#d4b673' stroke-width='1' opacity='0.35'/>
-            <line x1='15' y1='10.5' x2='23' y2='17.5' stroke='#d4b673' stroke-width='1' opacity='0.35'/>
-            <line x1='7'  y1='21'   x2='23' y2='21'   stroke='#d4b673' stroke-width='1' opacity='0.25'/>
-          </svg>
-          <div>
-            <p style='font-family:Cormorant Garamond,serif;font-size:19px;font-weight:600;
-                       color:#d4b673;margin:0;letter-spacing:.05em;line-height:1'>SYNDESI</p>
-            <p style='font-size:8px;color:rgba(255,255,255,.2);margin:2px 0 0;
-                       letter-spacing:.22em;text-transform:uppercase'>NETWORK</p>
+# ══════════════════════════════════════════
+# HEADER
+# ══════════════════════════════════════════
+st.markdown(f"""
+<div style='background:#fff;border-bottom:1px solid #ede8e3;
+            padding:14px 24px;display:flex;align-items:center;
+            justify-content:space-between;position:sticky;top:0;z-index:100'>
+  <div style='display:flex;align-items:center;gap:12px'>
+    <div style='width:36px;height:36px;background:{BRAND};border-radius:10px;
+                display:flex;align-items:center;justify-content:center;flex-shrink:0'>
+      <svg width='20' height='20' viewBox='0 0 24 24' fill='none'>
+        <circle cx='12' cy='6'  r='2.5' fill='white'/>
+        <circle cx='6'  cy='18' r='2.5' fill='white' opacity='.7'/>
+        <circle cx='18' cy='18' r='2.5' fill='white' opacity='.7'/>
+        <line x1='12' y1='8.5' x2='6'  y2='15.5' stroke='white' stroke-width='1.5' opacity='.6'/>
+        <line x1='12' y1='8.5' x2='18' y2='15.5' stroke='white' stroke-width='1.5' opacity='.6'/>
+        <line x1='6'  y1='18'  x2='18' y2='18'   stroke='white' stroke-width='1.5' opacity='.4'/>
+      </svg>
+    </div>
+    <div>
+      <p style='font-size:15px;font-weight:700;color:#1a1a1a;margin:0;letter-spacing:-.01em'>Syndesi</p>
+      <p style='font-size:11px;color:#b0a89e;margin:0'>Expert matching · Internal tool</p>
+    </div>
+  </div>
+  <div style='display:flex;align-items:center;gap:6px'>
+    <div style='width:8px;height:8px;background:#22c55e;border-radius:50%'></div>
+    <span style='font-size:12px;color:#6b7280'>Online</span>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════
+# CHAT AREA
+# ══════════════════════════════════════════
+st.markdown("""
+<div style='max-width:720px;margin:0 auto;padding:24px 16px 120px'>
+""", unsafe_allow_html=True)
+
+# Welcome message (always shown if no messages)
+if not st.session_state.messages:
+    st.markdown(f"""
+    <div style='display:flex;gap:10px;margin-bottom:20px'>
+      <div style='width:32px;height:32px;background:{BRAND};border-radius:50%;
+                  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+                  margin-top:2px'>
+        <svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
+          <circle cx='12' cy='6'  r='2.5' fill='white'/>
+          <circle cx='6'  cy='18' r='2.5' fill='white' opacity='.7'/>
+          <circle cx='18' cy='18' r='2.5' fill='white' opacity='.7'/>
+          <line x1='12' y1='8.5' x2='6'  y2='15.5' stroke='white' stroke-width='1.5' opacity='.6'/>
+          <line x1='12' y1='8.5' x2='18' y2='15.5' stroke='white' stroke-width='1.5' opacity='.6'/>
+        </svg>
+      </div>
+      <div style='background:#fff;border-radius:4px 18px 18px 18px;
+                  padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,.08);
+                  max-width:85%'>
+        <p style='font-size:15px;color:#1a1a1a;margin:0 0 6px;font-weight:500'>
+          Hi! I'm the Syndesi concierge.
+        </p>
+        <p style='font-size:14px;color:#6b7280;margin:0;line-height:1.6'>
+          Tell me what's going on — in your own words, no jargon needed.
+          I'll find the right specialist from our network for you.
+        </p>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Suggestion chips
+    st.markdown("<div style='margin-left:42px;margin-bottom:8px'>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:11.5px;color:#b0a89e;margin:0 0 8px'>Quick suggestions:</p>", unsafe_allow_html=True)
+    chip_cols = st.columns(3, gap="small")
+    st.markdown("<div class='chip-btn'>", unsafe_allow_html=True)
+    for i, sug in enumerate(SUGGESTIONS):
+        with chip_cols[i % 3]:
+            if st.button(sug, key=f"sug_{i}"):
+                st.session_state.messages.append({"role":"user","content":sug})
+                st.session_state.last_query = sug
+                st.session_state.last_result = None
+                st.session_state.awaiting_refine = False
+                st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# Render existing messages
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.markdown(f"""
+        <div style='display:flex;justify-content:flex-end;margin-bottom:12px'>
+          <div style='background:{BRAND};color:#fff;border-radius:18px 4px 18px 18px;
+                      padding:12px 16px;max-width:80%;
+                      box-shadow:0 1px 3px rgba(232,101,26,.25)'>
+            <p style='font-size:14px;margin:0;line-height:1.5'>{msg["content"]}</p>
           </div>
         </div>
         """, unsafe_allow_html=True)
-    with h2:
-        st.markdown("""
-        <div style='display:flex;align-items:center;justify-content:center;
-                    gap:28px;padding:24px 0 12px'>
-          <span style='font-size:12.5px;color:rgba(255,255,255,.22)'>Find an Expert</span>
-          <span style='font-size:12.5px;color:rgba(255,255,255,.22)'>Our Network</span>
-          <a href='https://www.syndesi.network' target='_blank'
-             style='font-size:12.5px;color:rgba(212,182,115,.45);text-decoration:none'>
-            syndesi.network
-          </a>
-        </div>
-        """, unsafe_allow_html=True)
-    with h3:
-        st.markdown("""
-        <div style='display:flex;justify-content:flex-end;align-items:center;padding:24px 0 12px'>
-          <a href='mailto:hello@syndesi.network'
-             style='font-size:12px;color:rgba(212,182,115,.55);text-decoration:none;
-                    padding:7px 16px;border:1px solid rgba(212,182,115,.16);border-radius:8px'>
-            Contact
-          </a>
-        </div>
-        """, unsafe_allow_html=True)
 
-st.markdown("<div style='height:1px;background:rgba(255,255,255,.04)'></div>", unsafe_allow_html=True)
+    elif msg["role"] == "assistant":
+        content = msg["content"]
 
-# ═══ HERO ═══
-with pad():
-    st.markdown("""
-    <div style='padding:60px 0 48px;border-bottom:1px solid rgba(255,255,255,.04)'>
-      <p style='font-size:10px;letter-spacing:.28em;text-transform:uppercase;
-                color:rgba(212,182,115,.5);margin:0 0 18px;font-weight:500'>
-        Professional Matching — Powered by AI
-      </p>
-      <h1 style='font-family:Cormorant Garamond,serif;
-                 font-size:clamp(34px,4.5vw,60px);font-weight:600;
-                 line-height:1.08;color:#fff;margin:0 0 18px;letter-spacing:-.01em'>
-        Describe your situation.<br>
-        <span style='color:#d4b673'>We find the right expert.</span>
-      </h1>
-      <p style='font-size:15px;font-weight:300;color:rgba(255,255,255,.32);
-                max-width:500px;line-height:1.8;margin:0'>
-        No need to know which specialist you need. Describe your situation in plain language —
-        our AI understands the underlying need and connects you with the most suitable
-        professionals from our verified network.
-      </p>
-      <div style='display:flex;gap:36px;margin-top:36px;padding-top:28px;
-                  border-top:1px solid rgba(255,255,255,.04)'>
-        <div>
-          <p style='font-family:Cormorant Garamond,serif;font-size:24px;
-                     font-weight:600;color:#d4b673;margin:0'>70+</p>
-          <p style='font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;
-                     letter-spacing:.14em;margin:4px 0 0'>Verified Professionals</p>
-        </div>
-        <div>
-          <p style='font-family:Cormorant Garamond,serif;font-size:24px;
-                     font-weight:600;color:#d4b673;margin:0'>AI</p>
-          <p style='font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;
-                     letter-spacing:.14em;margin:4px 0 0'>Smart Matching</p>
-        </div>
-        <div>
-          <p style='font-family:Cormorant Garamond,serif;font-size:24px;
-                     font-weight:600;color:#d4b673;margin:0'>Free</p>
-          <p style='font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;
-                     letter-spacing:.14em;margin:4px 0 0'>To Use</p>
-        </div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+        if content.get("type") == "thinking":
+            st.markdown(f"""
+            <div style='display:flex;gap:10px;margin-bottom:12px'>
+              <div style='width:32px;height:32px;background:{BRAND};border-radius:50%;
+                          flex-shrink:0;display:flex;align-items:center;justify-content:center'>
+                <svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
+                  <circle cx='12' cy='6' r='2.5' fill='white'/>
+                  <circle cx='6' cy='18' r='2.5' fill='white' opacity='.7'/>
+                  <circle cx='18' cy='18' r='2.5' fill='white' opacity='.7'/>
+                  <line x1='12' y1='8.5' x2='6' y2='15.5' stroke='white' stroke-width='1.5' opacity='.6'/>
+                  <line x1='12' y1='8.5' x2='18' y2='15.5' stroke='white' stroke-width='1.5' opacity='.6'/>
+                </svg>
+              </div>
+              <div style='background:#fff;border-radius:4px 18px 18px 18px;
+                          padding:12px 16px;box-shadow:0 1px 3px rgba(0,0,0,.08)'>
+                <p style='font-size:13px;color:#b0a89e;margin:0'>Searching the network...</p>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-# ═══ EXAMPLES ═══
-with pad():
-    st.markdown("""
-    <p style='font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
-               color:rgba(255,255,255,.18);font-weight:500;margin:28px 0 10px'>
-      Example situations — click to try
-    </p>
-    """, unsafe_allow_html=True)
-    st.markdown("<div class='exbtn'>", unsafe_allow_html=True)
-    ec = st.columns(3, gap="small")
-    for i,(label,query) in enumerate(EXAMPLES):
-        with ec[i%3]:
-            if st.button(label, key=f"eq_{i}"):
-                st.session_state["prefill"] = query
-                st.session_state["last_result"] = None
-                st.rerun()
+        elif content.get("type") == "result":
+            result = content["result"]
+            reply = result.get("reply","")
+            matches = result.get("matches",[])
+            understood = result.get("understood_need","")
+            expert_type = result.get("expert_type","")
+
+            # Bot reply text
+            st.markdown(f"""
+            <div style='display:flex;gap:10px;margin-bottom:12px'>
+              <div style='width:32px;height:32px;background:{BRAND};border-radius:50%;
+                          flex-shrink:0;display:flex;align-items:center;
+                          justify-content:center;margin-top:2px'>
+                <svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
+                  <circle cx='12' cy='6' r='2.5' fill='white'/>
+                  <circle cx='6' cy='18' r='2.5' fill='white' opacity='.7'/>
+                  <circle cx='18' cy='18' r='2.5' fill='white' opacity='.7'/>
+                  <line x1='12' y1='8.5' x2='6' y2='15.5' stroke='white' stroke-width='1.5' opacity='.6'/>
+                  <line x1='12' y1='8.5' x2='18' y2='15.5' stroke='white' stroke-width='1.5' opacity='.6'/>
+                </svg>
+              </div>
+              <div style='background:#fff;border-radius:4px 18px 18px 18px;
+                          padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,.08);max-width:85%'>
+                <p style='font-size:14px;color:#1a1a1a;margin:0 0 6px;line-height:1.6'>{reply}</p>
+                <p style='font-size:12px;color:#b0a89e;margin:0'>
+                  Specialist identified: <span style='color:{BRAND};font-weight:500'>{expert_type}</span>
+                </p>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Match cards
+            rank_labels = ["Best match","Strong alternative","Also consider"]
+            for i, m in enumerate(matches[:3]):
+                conf = int(m.get("confidence",80))
+                cc = conf_color(conf)
+                cl = conf_label(conf)
+                rl = rank_labels[i] if i < 3 else f"Match {i+1}"
+
+                st.markdown(f"""
+                <div style='margin-left:42px;margin-bottom:10px'>
+                  <div style='background:#fff;border-radius:14px;padding:16px 18px;
+                              box-shadow:0 1px 4px rgba(0,0,0,.08);
+                              border-left:3px solid {cc}'>
+                    <div style='display:flex;justify-content:space-between;
+                                align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:6px'>
+                      <div>
+                        <p style='font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+                                   color:#b0a89e;margin:0 0 3px;font-weight:500'>{rl}</p>
+                        <p style='font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 2px'>{m.get("name","")}</p>
+                        <p style='font-size:13px;color:#6b7280;margin:0'>
+                          {m.get("company","")} &nbsp;·&nbsp;
+                          <span style='color:{BRAND}'>{m.get("speciality","")}</span>
+                        </p>
+                      </div>
+                      <div style='text-align:right;flex-shrink:0'>
+                        <p style='font-size:22px;font-weight:700;color:{cc};margin:0;line-height:1'>{conf}%</p>
+                        <p style='font-size:11px;color:#b0a89e;margin:2px 0 0'>{cl}</p>
+                      </div>
+                    </div>
+                    <div style='background:#f9f6f3;border-radius:8px;padding:10px 12px;margin-bottom:12px'>
+                      <p style='font-size:12.5px;color:#6b7280;line-height:1.65;margin:0'>{m.get("reason","")}</p>
+                    </div>
+                    <div style='display:flex;gap:8px;flex-wrap:wrap'>
+                      <a href='mailto:{m.get("email","")}?subject=Enquiry via Syndesi'
+                         style='display:inline-flex;align-items:center;gap:6px;
+                                padding:7px 14px;background:#FDF0E8;
+                                border:1px solid #f0d8c4;border-radius:100px;
+                                font-size:12.5px;color:{BRAND};text-decoration:none;font-weight:500'>
+                        ✉ {m.get("email","")}
+                      </a>
+                      <span style='display:inline-flex;align-items:center;gap:6px;
+                                    padding:7px 14px;background:#f5f3f0;
+                                    border:1px solid #e8e0d8;border-radius:100px;
+                                    font-size:12.5px;color:#6b7280'>
+                        ☎ {m.get("phone","")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            # Refine prompt
+            st.markdown(f"""
+            <div style='display:flex;gap:10px;margin-bottom:12px;margin-top:4px'>
+              <div style='width:32px;flex-shrink:0'></div>
+              <div style='background:#fff;border-radius:4px 18px 18px 18px;
+                          padding:12px 16px;box-shadow:0 1px 3px rgba(0,0,0,.08);max-width:85%'>
+                <p style='font-size:14px;color:#6b7280;margin:0;line-height:1.6'>
+                  Not the right fit? You can tell me more — e.g. <em>"show me someone in London"</em>,
+                  <em>"I need someone more senior"</em>, or <em>"show me different options"</em>.
+                </p>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        elif content.get("type") == "error":
+            st.markdown(f"""
+            <div style='display:flex;gap:10px;margin-bottom:12px'>
+              <div style='width:32px;flex-shrink:0'></div>
+              <div style='background:#fff5f5;border:1px solid #fecaca;border-radius:4px 18px 18px 18px;
+                          padding:12px 16px;max-width:85%'>
+                <p style='font-size:14px;color:#dc2626;margin:0'>{content.get("text","Something went wrong. Please try again.")}</p>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════
+# PROCESS PENDING QUERY
+# ══════════════════════════════════════════
+pending_query = st.session_state.get("last_query","")
+has_result = st.session_state.get("last_result") is not None
+needs_processing = (
+    pending_query and
+    not has_result and
+    len(st.session_state.messages) > 0 and
+    st.session_state.messages[-1]["role"] == "user"
+)
+
+if needs_processing:
+    df = load_professionals()
+    summary = get_summary(df)
+
+    with st.spinner(""):
+        result = find_experts(pending_query, summary)
+
+    if result:
+        st.session_state.last_result = result
+        st.session_state.messages.append({
+            "role":"assistant",
+            "content":{"type":"result","result":result}
+        })
+        st.session_state.awaiting_refine = True
+    else:
+        st.session_state.messages.append({
+            "role":"assistant",
+            "content":{"type":"error","text":"I had trouble searching the network. Please try again in a moment."}
+        })
+    st.rerun()
+
+# ══════════════════════════════════════════
+# INPUT BAR — sticky bottom
+# ══════════════════════════════════════════
+st.markdown(f"""
+<div style='position:fixed;bottom:0;left:0;right:0;
+            background:linear-gradient(transparent,#F7F4F1 30%);
+            padding:16px 16px 20px;z-index:99'>
+  <div style='max-width:720px;margin:0 auto'>
+""", unsafe_allow_html=True)
+
+inp_col, btn_col = st.columns([1, 0.08], gap="small")
+
+with inp_col:
+    placeholder = "Refine your results..." if st.session_state.awaiting_refine else "Describe your situation..."
+    user_input = st.text_input("msg", placeholder=placeholder, label_visibility="collapsed", key="chat_input")
+
+with btn_col:
+    st.markdown("<div style='padding-top:5px'>", unsafe_allow_html=True)
+    send = st.button("→", key="send_btn")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ═══ INPUT ═══
-with pad():
-    st.markdown("<hr>", unsafe_allow_html=True)
-    st.markdown("""
-    <p style='font-family:Cormorant Garamond,serif;font-size:22px;font-weight:600;
-               color:#fff;margin:0 0 6px'>Describe your situation</p>
-    <p style='font-size:13px;color:rgba(255,255,255,.28);margin:0 0 14px;line-height:1.6'>
-      Be as specific or as general as you like. Our AI will work out what you need.
-    </p>
-    """, unsafe_allow_html=True)
+st.markdown("</div></div>", unsafe_allow_html=True)
 
-    prefill = st.session_state.get("prefill","")
-    user_query = st.text_area(
-        "query", value=prefill,
-        placeholder="E.g. HMRC are chasing me for unpaid taxes from 3 years ago and I don't know where to start...\n\nOr: My business partner wants to buy me out but I think the valuation is too low...\n\nOr: I've been dismissed and my employer says it's redundancy but I think they just wanted me gone...",
-        height=160, label_visibility="collapsed"
-    )
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-    find = st.button("Find the Right Expert →")
+# Handle send
+if (send or user_input) and user_input.strip():
+    msg_text = user_input.strip()
 
-# ═══ RESULTS ═══
-if find and user_query.strip():
-    st.session_state["last_query"] = user_query
-    st.session_state["last_result"] = None
-
-if st.session_state.get("last_query") and not st.session_state.get("last_result"):
-    query = st.session_state["last_query"]
-    df = load_professionals()
-    if df.empty:
-        with pad():
-            st.error("Could not load the professionals database. Please check the Google Sheet connection.")
-        st.stop()
-    summary = get_summary(df)
-    with pad():
-        with st.spinner("Understanding your situation and searching our network..."):
-            result = analyse(query, summary)
-        if result:
-            st.session_state["last_result"] = result
+    if st.session_state.awaiting_refine and st.session_state.last_result:
+        # Refinement
+        st.session_state.messages.append({"role":"user","content":msg_text})
+        df = load_professionals()
+        summary = get_summary(df)
+        with st.spinner(""):
+            refined = refine_experts(
+                st.session_state.last_query,
+                st.session_state.last_result,
+                msg_text,
+                summary
+            )
+        if refined:
+            st.session_state.last_result = refined
+            st.session_state.messages.append({
+                "role":"assistant",
+                "content":{"type":"result","result":refined}
+            })
         else:
-            st.markdown("""
-            <div style='padding:14px 18px;background:rgba(239,68,68,.05);
-                        border:1px solid rgba(239,68,68,.15);border-radius:10px;
-                        font-size:13.5px;color:rgba(239,68,68,.65)'>
-              Could not analyse your query. Please try again in a moment.
-            </div>
-            """, unsafe_allow_html=True)
-            st.stop()
+            st.session_state.messages.append({
+                "role":"assistant",
+                "content":{"type":"error","text":"I couldn't refine those results. Please try again."}
+            })
+    else:
+        # New query
+        st.session_state.messages.append({"role":"user","content":msg_text})
+        st.session_state.last_query = msg_text
+        st.session_state.last_result = None
+        st.session_state.awaiting_refine = False
 
-result = st.session_state.get("last_result")
-if result:
-    with pad():
-        st.markdown("<hr>", unsafe_allow_html=True)
-
-        # AI UNDERSTANDING BANNER
-        st.markdown(f"""
-        <div style='padding:18px 22px;background:rgba(212,182,115,.04);
-                    border:1px solid rgba(212,182,115,.12);border-radius:12px;margin-bottom:24px'>
-          <p style='font-size:9px;letter-spacing:.2em;text-transform:uppercase;
-                     color:rgba(212,182,115,.4);margin:0 0 7px;font-weight:500'>
-            AI Understanding
-          </p>
-          <p style='font-family:Cormorant Garamond,serif;font-size:20px;font-weight:500;
-                     color:rgba(255,255,255,.75);margin:0 0 8px;line-height:1.5'>
-            {result.get("understood_need","")}
-          </p>
-          <p style='font-size:12px;color:rgba(255,255,255,.26);margin:0'>
-            Specialist identified:&nbsp;
-            <strong style='color:rgba(212,182,115,.6);font-weight:500'>
-              {result.get("expert_type_needed","")}
-            </strong>
-          </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # RESULTS HEADING
-        st.markdown("""
-        <p style='font-family:Cormorant Garamond,serif;font-size:22px;font-weight:600;
-                   color:#fff;margin:0 0 4px'>Top matches from our network</p>
-        <p style='font-size:13px;color:rgba(255,255,255,.25);margin:0 0 20px'>
-          Ranked by relevance to your specific situation
-        </p>
-        """, unsafe_allow_html=True)
-
-        # MATCH CARDS
-        rank_labels = ["Best Match","Strong Alternative","Also Consider"]
-        for i, m in enumerate(result.get("matches",[])[:3]):
-            conf = int(m.get("confidence", 80))
-            cc = conf_color(conf)
-            cl, cs = conf_badge(conf)
-            rl = rank_labels[i] if i < 3 else f"Match {i+1}"
-
-            st.markdown(f"""
-            <div style='padding:24px;background:#0e1018;
-                        border:1px solid rgba(255,255,255,.06);
-                        border-radius:14px;margin-bottom:12px;
-                        position:relative;overflow:hidden'>
-              <div style='position:absolute;top:0;left:0;right:0;height:2px;
-                           background:linear-gradient(90deg,{cc}55,transparent)'></div>
-
-              <div style='display:flex;justify-content:space-between;
-                           align-items:flex-start;margin-bottom:18px;
-                           flex-wrap:wrap;gap:12px'>
-                <div>
-                  <p style='font-size:9px;letter-spacing:.16em;text-transform:uppercase;
-                             color:rgba(255,255,255,.18);margin:0 0 5px'>{rl}</p>
-                  <p style='font-family:Cormorant Garamond,serif;font-size:24px;
-                             font-weight:600;color:#fff;margin:0 0 3px;letter-spacing:.01em'>
-                    {m.get("name","")}
-                  </p>
-                  <p style='font-size:13px;color:rgba(255,255,255,.35);margin:0'>
-                    {m.get("company","")}&nbsp;&nbsp;
-                    <span style='color:rgba(212,182,115,.5)'>·</span>&nbsp;&nbsp;
-                    <span style='color:rgba(212,182,115,.55)'>{m.get("speciality","")}</span>
-                  </p>
-                </div>
-                <div style='text-align:right;flex-shrink:0'>
-                  <p style='font-family:Cormorant Garamond,serif;font-size:32px;
-                             font-weight:600;color:{cc};margin:0;line-height:1'>{conf}%</p>
-                  <p style='font-size:9px;color:rgba(255,255,255,.18);text-transform:uppercase;
-                             letter-spacing:.1em;margin:3px 0 6px'>Match</p>
-                  <span style='display:inline-block;padding:3px 10px;border-radius:5px;
-                                font-size:10px;font-weight:500;background:{cs}'>{cl}</span>
-                </div>
-              </div>
-
-              <div style='padding:13px 16px;background:rgba(255,255,255,.025);
-                           border-radius:8px;margin-bottom:16px'>
-                <p style='font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-                           color:rgba(255,255,255,.18);margin:0 0 5px'>Why this match</p>
-                <p style='font-size:13.5px;color:rgba(255,255,255,.48);
-                           line-height:1.7;margin:0'>{m.get("reason","")}</p>
-              </div>
-
-              <div style='display:flex;gap:10px;flex-wrap:wrap'>
-                <a href='mailto:{m.get("email","")}?subject=Enquiry via Syndesi Network'
-                   style='display:inline-flex;align-items:center;gap:7px;
-                          padding:9px 16px;background:rgba(212,182,115,.08);
-                          border:1px solid rgba(212,182,115,.18);border-radius:8px;
-                          font-size:12.5px;color:#d4b673;text-decoration:none'>
-                  ✉&nbsp; {m.get("email","")}
-                </a>
-                <span style='display:inline-flex;align-items:center;gap:7px;
-                              padding:9px 16px;background:rgba(255,255,255,.04);
-                              border:1px solid rgba(255,255,255,.07);border-radius:8px;
-                              font-size:12.5px;color:rgba(255,255,255,.38)'>
-                  ☎&nbsp; {m.get("phone","")}
-                </span>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        # REFINE
-        st.markdown("""
-        <div style='margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.05)'>
-          <p style='font-family:Cormorant Garamond,serif;font-size:18px;font-weight:500;
-                     color:rgba(255,255,255,.6);margin:0 0 5px'>Not quite right?</p>
-          <p style='font-size:13px;color:rgba(255,255,255,.25);margin:0 0 12px'>
-            Tell us more and we'll refine your results.
-          </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        refine_input = st.text_area(
-            "refine", key="refine_text",
-            placeholder="E.g. Show me more options... I need someone in London... I need someone who specialises in VAT specifically... Show me a more senior specialist...",
-            height=80, label_visibility="collapsed"
-        )
-        st.markdown("<div class='refine-btn'>", unsafe_allow_html=True)
-        if st.button("Refine My Results →", key="refine_btn"):
-            if refine_input.strip():
-                df = load_professionals()
-                summary = get_summary(df)
-                with st.spinner("Refining your matches..."):
-                    refined = refine(
-                        st.session_state.get("last_query",""),
-                        result, refine_input, summary
-                    )
-                if refined:
-                    st.session_state["last_result"] = refined
-                    st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown("<hr>", unsafe_allow_html=True)
-        st.markdown("""
-        <p style='font-size:11.5px;color:rgba(255,255,255,.16);line-height:1.7;margin:0'>
-          All professionals listed are verified members of the Syndesi Network.
-          Matches provided by this tool do not constitute legal, financial or tax advice.
-          Always conduct your own due diligence before engaging any professional.
-        </p>
-        """, unsafe_allow_html=True)
-
-# ═══ FOOTER ═══
-with pad():
-    st.markdown("""
-    <hr>
-    <div style='display:flex;justify-content:space-between;align-items:center;
-                padding-bottom:36px;flex-wrap:wrap;gap:16px'>
-      <div style='display:flex;align-items:center;gap:10px'>
-        <svg width='20' height='20' viewBox='0 0 30 30' fill='none'>
-          <circle cx='15' cy='15' r='13.5' stroke='#d4b673' stroke-width='1' opacity='0.3'/>
-          <circle cx='15' cy='7'  r='3'   fill='#d4b673' opacity='0.7'/>
-          <circle cx='7'  cy='21' r='3'   fill='#d4b673' opacity='0.45'/>
-          <circle cx='23' cy='21' r='3'   fill='#d4b673' opacity='0.45'/>
-          <line x1='15' y1='10' x2='7'  y2='18' stroke='#d4b673' stroke-width='1' opacity='0.3'/>
-          <line x1='15' y1='10' x2='23' y2='18' stroke='#d4b673' stroke-width='1' opacity='0.3'/>
-        </svg>
-        <div>
-          <p style='font-family:Cormorant Garamond,serif;font-size:14px;font-weight:600;
-                     color:rgba(212,182,115,.4);margin:0;letter-spacing:.05em'>SYNDESI NETWORK</p>
-          <p style='font-size:9px;color:rgba(255,255,255,.14);margin:0;letter-spacing:.1em'>
-            www.syndesi.network
-          </p>
-        </div>
-      </div>
-      <div style='display:flex;gap:20px;flex-wrap:wrap;align-items:center'>
-        <a href='https://www.syndesi.network' target='_blank'
-           style='font-size:12px;color:rgba(255,255,255,.2);text-decoration:none'>Website</a>
-        <a href='mailto:hello@syndesi.network'
-           style='font-size:12px;color:rgba(255,255,255,.2);text-decoration:none'>
-          hello@syndesi.network
-        </a>
-        <span style='font-size:12px;color:rgba(255,255,255,.1)'>© 2026 Syndesi Network</span>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.rerun()
