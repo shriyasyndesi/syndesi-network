@@ -191,7 +191,7 @@ st.markdown("""
 
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section[data-testid="stMain"] { padding: 0 !important; background: #F2F2F5 !important; }
-section[data-testid="stMain"] > div { padding: 0 !important; }
+section[data-testid="stMain"] > div { padding: 0 0 100px 0 !important; }
 
 /* ── SIDEBAR ── */
 [data-testid="stSidebar"] {
@@ -390,18 +390,29 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 }
 
 /* ── CHAT INPUT ── */
+/* Fix chat input bar to the very bottom */
 [data-testid="stBottom"] {
-    background: transparent !important;
-    border: none !important; box-shadow: none !important; padding: 0 !important;
-}
-[data-testid="stBottom"] > div {
-    background: transparent !important; border: none !important; padding: 0 !important;
-}
-[data-testid="stChatInput"] {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: var(--sidebar-width, 260px) !important;
+    right: 0 !important;
+    z-index: 999 !important;
     background: white !important;
     border-top: 1px solid #E5E5EA !important;
-    padding: 16px 40px 20px 60px !important;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08) !important;
+    padding: 14px 40px 18px 60px !important;
+}
+[data-testid="stBottom"] > div {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    max-width: 1000px !important;
+}
+[data-testid="stChatInput"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
     margin: 0 !important;
 }
 [data-testid="stChatInput"] textarea {
