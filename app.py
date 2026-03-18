@@ -88,7 +88,6 @@ defaults = {
     "step": "category",
     "chosen_category": None,
     "chosen_sub": None,
-    "search_query": "",
     "recent_searches": [],  # list of dicts: {category, sub, time}
 }
 for k, v in defaults.items():
@@ -191,7 +190,7 @@ st.markdown("""
 
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section[data-testid="stMain"] { padding: 0 !important; background: #F2F2F5 !important; }
-section[data-testid="stMain"] > div { padding: 0 0 100px 0 !important; }
+section[data-testid="stMain"] > div { padding: 0 !important; }
 
 /* ── SIDEBAR ── */
 [data-testid="stSidebar"] {
@@ -390,42 +389,7 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 }
 
 /* ── CHAT INPUT ── */
-/* Fix chat input bar to the very bottom */
-[data-testid="stBottom"] {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: var(--sidebar-width, 260px) !important;
-    right: 0 !important;
-    z-index: 999 !important;
-    background: white !important;
-    border-top: 1px solid #E5E5EA !important;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.08) !important;
-    padding: 14px 40px 18px 60px !important;
-}
-[data-testid="stBottom"] > div {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    max-width: 1000px !important;
-}
-[data-testid="stChatInput"] {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-[data-testid="stChatInput"] textarea {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 14px !important; color: #18181B !important;
-}
-[data-testid="stChatInput"] textarea::placeholder {
-    color: #A1A1AA !important; font-size: 14px !important;
-}
-[data-testid="stChatInputSubmitButton"] button {
-    background: linear-gradient(135deg, #E8651A, #D45515) !important;
-    border: none !important;
-}
+
 
 .divider { border: none; border-top: 1px solid #E5E5EA; margin: 24px 0 18px; }
 
@@ -497,33 +461,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── STEP 1: CATEGORY ──
-if st.session_state.step == "global_search":
-    kw = st.session_state.search_query.strip()
-    all_experts = df.to_dict("records") if df is not None else []
-    filtered = [
-        e for e in all_experts
-        if kw.lower() in str(e.get("Speciality", "")).lower()
-        or kw.lower() in str(e.get("Name", "")).lower()
-        or kw.lower() in str(e.get("Company", "")).lower()
-    ]
-    count = len(filtered)
-    st.markdown(f'<div class="user-bubble-wrap"><div class="user-msg">🔎 {kw}</div></div>', unsafe_allow_html=True)
-    st.markdown(
-        f"<div class='bubble-bot'><div class='bot-av'>🧠</div>"
-        f"<div class='bot-msg'>I found <strong>{count} expert{'s' if count != 1 else ''}</strong> matching <em>{kw}</em>:</div></div>",
-        unsafe_allow_html=True
-    )
-    if filtered:
-        for expert in filtered:
-            render_expert(expert)
-    else:
-        st.markdown("<div class='bubble-bot'><div class='bot-av'>🧠</div><div class='bot-msg'>No experts found for that keyword. Try something else.</div></div>", unsafe_allow_html=True)
-    st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
-    if st.button("🔄 Start a new search", key="restart_global"):
-        reset()
-        st.rerun()
-
-elif st.session_state.step == "category":
+if st.session_state.step == "category":
     categories = list(CATEGORY_MAP.keys())
     cols = st.columns(2)
     for i, cat in enumerate(categories):
@@ -589,34 +527,22 @@ elif st.session_state.step == "results":
         else:
             experts = get_experts_for_names(cat_names)
 
-    # Apply keyword filter from submitted search
-    kw = st.session_state.search_query.strip()
-    filtered_experts = experts
-    if kw:
-        filtered_experts = [
-            e for e in experts
-            if kw.lower() in str(e.get("Speciality", "")).lower()
-            or kw.lower() in str(e.get("Name", "")).lower()
-            or kw.lower() in str(e.get("Company", "")).lower()
-        ]
-
-    count = len(filtered_experts)
-    kw_note = f" matching <em>{kw}</em>" if kw else ""
+    count = len(experts)
     st.markdown(
         f"<div class='bubble-bot'><div class='bot-av'>🧠</div>"
-        f"<div class='bot-msg'>I found <strong>{count} expert{'s' if count != 1 else ''}</strong>"
-        f"{kw_note}. Here {'they are' if count != 1 else 'they are'}:</div></div>",
+        f"<div class='bot-msg'>I found <strong>{count} expert{'s' if count != 1 else ''}</strong>. "
+        f"Here {'they are' if count != 1 else 'they are'}:</div></div>",
         unsafe_allow_html=True
     )
 
-    if filtered_experts:
-        for expert in filtered_experts:
+    if experts:
+        for expert in experts:
             render_expert(expert)
     else:
         st.markdown("""
             <div class="bubble-bot">
                 <div class="bot-av">🧠</div>
-                <div class="bot-msg">No results for that keyword. Try something different or clear the search below.</div>
+                <div class="bot-msg">No experts found for this selection.</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -627,20 +553,7 @@ elif st.session_state.step == "results":
 
 st.markdown('</div>', unsafe_allow_html=True)  # close chat-body
 
-# ── SEARCH INPUT ── native bottom bar, no gaps
-query = st.chat_input("🔎  Search experts, e.g. 'capital allowance', 'probate', 'bridging'...")
-if query:
-    # If on results page, filter further; otherwise do a global search across all experts
-    if st.session_state.step == "results":
-        st.session_state.search_query = query
-        st.rerun()
-    else:
-        # Global keyword search across all experts regardless of category
-        st.session_state.search_query = query
-        st.session_state.chosen_category = "⚖️ Legal"  # dummy, overridden below
-        st.session_state.chosen_sub = "__all__"
-        st.session_state.step = "global_search"
-        st.rerun()
+
 
 if err:
     st.warning(f"⚠️ Could not load live data: {err}")
