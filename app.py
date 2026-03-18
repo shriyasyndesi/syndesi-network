@@ -446,10 +446,13 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 .chat-input-wrap {
     border-top: 2px solid #E8E8EC;
     background: white;
-    padding: 20px 44px 24px;
-    flex-shrink: 0;
+    padding: 16px 44px 20px;
+    margin-top: 0 !important;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
 }
+/* Kill all extra space Streamlit adds around the input block */
+div[data-testid="stBottom"] { display: none !important; }
+.chat-input-wrap .stTextInput { padding: 0 !important; margin: 0 !important; border: none !important; background: transparent !important; }
 .input-label {
     font-size: 11px; font-weight: 700; color: #9CA3AF;
     text-transform: uppercase; letter-spacing: 0.8px;
@@ -478,6 +481,19 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
     color: #BBBBC4 !important; font-weight: 400 !important; font-size: 14px !important;
 }
 .divider { border: none; border-top: 1px solid #E8E8EC; margin: 20px 0 16px; }
+/* Kill Streamlit's auto margin/padding above the search bar */
+div[data-testid="stVerticalBlock"] > div:has(> .chat-input-wrap) {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+div[data-testid="stMarkdownContainer"]:has(> .chat-input-wrap) {
+    margin: 0 !important; padding: 0 !important;
+}
+/* Remove extra gap between chat body and input */
+.stApp > section > div > div > div > div:last-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
