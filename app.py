@@ -14,7 +14,7 @@ SHEET_ID = "1mjEM2jJ69Qc0m5R1mdw6wjsPhRJ0mscNhMJLwNdRM7Q"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv"
 LOGO_URL = "https://www.syndesi.network/syndesi_logo_white_on_orange.png"
 
-st.set_page_config(page_title="Syndesi Concierge", page_icon="🔶", layout="centered")
+st.set_page_config(page_title="Syndesi Assistant", page_icon="🔶", layout="centered")
 
 # ── STYLES ──
 st.markdown(f"""
@@ -111,7 +111,7 @@ def gemini_call(prompt):
 # ── SESSION STATE ──
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "Hi, I'm the Syndesi Concierge. How can I help you find an expert today?"}
+        {"role": "assistant", "content": "Hi, I'm your Syndesi Assistant. How can I help you find an expert today?"}
     ]
 
 # ── HEADER ──
