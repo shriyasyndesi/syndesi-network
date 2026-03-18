@@ -195,8 +195,11 @@ st.markdown("""
 section[data-testid="stMain"] { padding: 0 !important; background: #F0F0F3 !important; }
 section[data-testid="stMain"] > div { padding: 0 !important; }
 
+/* Breathing room from sidebar */
+.main > div { padding-left: 0 !important; }
+
 /* Sidebar */
-[data-testid="stSidebar"] { background: #161618 !important; border-right: none !important; }
+[data-testid="stSidebar"] { background: #161618 !important; border-right: 1px solid #2A2A2C !important; box-shadow: 4px 0 24px rgba(0,0,0,0.18) !important; }
 [data-testid="stSidebar"] > div { padding: 0 !important; }
 
 /* Sidebar content */
@@ -255,8 +258,9 @@ section[data-testid="stMain"] > div { padding: 0 !important; }
 /* Chat header */
 .chat-header {
     background: white; border-bottom: 1px solid #E8E8EC;
-    padding: 16px 44px; display: flex; align-items: center; gap: 12px;
+    padding: 16px 48px; display: flex; align-items: center; gap: 12px;
     box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    margin-left: 0;
 }
 .hdr-icon {
     width: 36px; height: 36px;
@@ -273,8 +277,9 @@ section[data-testid="stMain"] > div { padding: 0 !important; }
 
 /* Chat body */
 .chat-body {
-    padding: 32px 44px 24px;
+    padding: 32px 44px 120px;
     max-width: 900px; width: 100%; margin: 0 auto;
+    overflow-y: auto;
 }
 
 /* Bot bubble */
@@ -374,9 +379,12 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 /* Chat input */
 [data-testid="stChatInput"] {
     background: white !important;
-    border-top: 1px solid #E8E8EC !important;
-    padding: 16px 44px 20px !important;
-    box-shadow: 0 -2px 12px rgba(0,0,0,0.05) !important;
+    border-top: 2px solid #EBEBED !important;
+    padding: 18px 48px 22px !important;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.08) !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 99 !important;
 }
 [data-testid="stChatInput"] textarea {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
