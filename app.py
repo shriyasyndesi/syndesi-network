@@ -297,7 +297,7 @@ div[data-testid="stMarkdownContainer"] p {
 
 /* Chat body */
 .chat-body {
-    padding: 0px 44px 16px 56px;
+    padding: 16px 44px 16px 56px;
     max-width: 900px; width: 100%; margin: 0 auto;
 }
 
@@ -396,11 +396,25 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 .syndesi-btn:hover { box-shadow: 0 4px 16px rgba(232,101,26,0.45); transform: translateY(-1px); color: white !important; }
 
 /* Chat input */
+/* Hide Streamlit's outer chat input wrapper box */
+[data-testid="stBottom"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+[data-testid="stBottom"] > div {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
 [data-testid="stChatInput"] {
     background: white !important;
-    border-top: 2px solid #EBEBED !important;
-    padding: 18px 48px 22px 56px !important;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.08) !important;
+    border-top: 1px solid #E8E8EC !important;
+    border-radius: 0 !important;
+    padding: 16px 56px 20px !important;
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.06) !important;
+    margin: 0 !important;
 }
 [data-testid="stChatInput"] textarea {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
