@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime
 
 SHEET_ID = "1mjEM2jJ69Qc0m5R1mdw6wjsPhRJ0mscNhMJLwNdRM7Q"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv"
 SYNDESI_LINK = "https://app.syndesi.network/login"
 
-st.set_page_config(page_title="Syndesi Assistant", page_icon="🧠", layout="centered")
+st.set_page_config(page_title="Syndesi Assistant", page_icon="🧠", layout="wide")
 
 CATEGORY_MAP = {
     "⚖️ Legal": [
@@ -82,191 +83,37 @@ SUBCATEGORIES = {
     ],
 }
 
-st.markdown(f"""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap');
+# ── SESSION STATE ──
+defaults = {
+    "step": "category",
+    "chosen_category": None,
+    "chosen_sub": None,
+    "search_query": "",
+    "recent_searches": [],  # list of dicts: {category, sub, time}
+}
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
-    * {{ box-sizing: border-box; }}
-    .stApp {{ background: #F4F4F6 !important; font-family: 'Plus Jakarta Sans', sans-serif !important; }}
-    [data-testid="stHeader"], [data-testid="stToolbar"] {{ display: none !important; }}
-    .block-container {{ max-width: 720px !important; padding: 0 0 20px 0 !important; margin: 0 auto; }}
+def reset():
+    st.session_state.step = "category"
+    st.session_state.chosen_category = None
+    st.session_state.chosen_sub = None
+    st.session_state.search_query = ""
 
-    /* ── HEADER ── */
-    .s-header {{
-        position: sticky; top: 0; z-index: 100;
-        background: white;
-        border-bottom: 1px solid #EBEBED;
-        padding: 14px 24px;
-        display: flex; align-items: center; gap: 12px;
-        box-shadow: 0 1px 12px rgba(0,0,0,0.06);
-    }}
-    .brand-mark {{
-        width: 36px; height: 36px; background: linear-gradient(135deg, #E8651A, #F0853A);
-        border-radius: 10px; display: flex; align-items: center; justify-content: center;
-        font-size: 20px; box-shadow: 0 2px 8px rgba(232,101,26,0.35);
-    }}
-    .brand-name {{
-        font-weight: 800; font-size: 17px; color: #0F0F0F; letter-spacing: -0.3px;
-    }}
-    .brand-sub {{
-        font-size: 11px; color: #9CA3AF; font-weight: 500; margin-left: auto;
-        background: #F4F4F6; padding: 3px 10px; border-radius: 20px;
-    }}
+def add_recent(category, sub):
+    label = category + (" › " + sub if sub and sub != "__all__" else "")
+    entry = {"label": label, "category": category, "sub": sub, "time": datetime.now().strftime("%H:%M")}
+    # avoid duplicates
+    st.session_state.recent_searches = [r for r in st.session_state.recent_searches if r["label"] != label]
+    st.session_state.recent_searches.insert(0, entry)
+    st.session_state.recent_searches = st.session_state.recent_searches[:10]  # keep last 10
 
-    /* ── CHAT AREA ── */
-    /* Bot bubble */
-    .bubble-bot {{ display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; }}
-    .bot-av {{
-        width: 30px; height: 30px; background: linear-gradient(135deg, #E8651A, #F0853A);
-        border-radius: 8px; display: flex; align-items: center; justify-content: center;
-        font-size: 15px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(232,101,26,0.3);
-    }}
-    .bot-msg {{
-        background: white; border: 1px solid #EBEBED;
-        border-radius: 4px 16px 16px 16px;
-        padding: 12px 16px; font-size: 14px; color: #1A1A1A; line-height: 1.65;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.05); max-width: 82%;
-        font-weight: 450;
-    }}
-
-    /* User bubble */
-    .user-bubble-wrap {{ display: flex; justify-content: flex-end; margin-bottom: 16px; }}
-    .user-msg {{
-        background: linear-gradient(135deg, #E8651A, #D45515);
-        color: white; border-radius: 16px 4px 16px 16px;
-        padding: 11px 16px; font-size: 14px; font-weight: 500;
-        max-width: 72%; line-height: 1.5;
-        box-shadow: 0 2px 10px rgba(232,101,26,0.3);
-    }}
-
-    /* ── OPTION BUTTONS ── */
-    .options-wrap {{ margin: 4px 0 20px 40px; display: flex; flex-wrap: wrap; gap: 8px; }}
-    div[data-testid="stHorizontalBlock"] .stButton > button {{
-        background: white !important;
-        border: 1.5px solid #E2E2E6 !important;
-        border-radius: 10px !important;
-        color: #2D2D2D !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 13px !important;
-        padding: 9px 14px !important;
-        width: 100% !important;
-        text-align: left !important;
-        transition: all 0.15s ease !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
-    }}
-    div[data-testid="stHorizontalBlock"] .stButton > button:hover {{
-        border-color: #E8651A !important;
-        color: #E8651A !important;
-        box-shadow: 0 2px 8px rgba(232,101,26,0.15) !important;
-        transform: translateY(-1px) !important;
-    }}
-
-    /* Show all / restart buttons */
-    div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button {{
-        background: transparent !important;
-        border: 1.5px solid #E2E2E6 !important;
-        border-radius: 10px !important;
-        color: #6B7280 !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        font-weight: 600 !important; font-size: 13px !important;
-        padding: 9px 18px !important;
-        transition: all 0.15s !important;
-    }}
-    div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover {{
-        border-color: #E8651A !important; color: #E8651A !important;
-    }}
-
-    /* ── EXPERT CARD ── */
-    .expert-card {{
-        background: white;
-        border: 1px solid #EBEBED;
-        border-radius: 16px;
-        padding: 20px 22px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-        transition: box-shadow 0.2s, transform 0.2s;
-    }}
-    .expert-card:hover {{
-        box-shadow: 0 6px 20px rgba(0,0,0,0.09);
-        transform: translateY(-1px);
-    }}
-    .expert-header {{ display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }}
-    .expert-initials {{
-        width: 44px; height: 44px; border-radius: 12px;
-        background: linear-gradient(135deg, #FFF0E6, #FFD9BE);
-        color: #E8651A; font-weight: 800; font-size: 15px;
-        display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0; letter-spacing: -0.5px;
-    }}
-    .expert-info {{ flex: 1; }}
-    .expert-name {{ font-weight: 700; font-size: 16px; color: #0F0F0F; margin-bottom: 2px; }}
-    .expert-co {{ color: #6B7280; font-size: 12.5px; font-weight: 500; }}
-    .spec-tag {{
-        display: inline-block;
-        background: #FFF7ED; color: #C05C17;
-        font-size: 10.5px; font-weight: 700;
-        padding: 3px 10px; border-radius: 20px;
-        text-transform: uppercase; letter-spacing: 0.5px;
-        margin: 12px 0 14px;
-        border: 1px solid #FDDCBC;
-    }}
-    .contact-row {{
-        display: flex; flex-direction: column; gap: 6px;
-        margin-bottom: 14px;
-    }}
-    .contact-item {{
-        display: flex; align-items: center; gap: 8px;
-        font-size: 13px; color: #374151; font-weight: 500;
-    }}
-    .contact-icon {{
-        width: 26px; height: 26px; background: #F4F4F6; border-radius: 6px;
-        display: flex; align-items: center; justify-content: center; font-size: 13px;
-        flex-shrink: 0;
-    }}
-    .contact-text {{ color: #374151; font-size: 13px; font-weight: 500; }}
-    .syndesi-btn {{
-        display: inline-flex; align-items: center; gap: 7px;
-        background: linear-gradient(135deg, #E8651A, #D45515);
-        color: white !important; text-decoration: none;
-        padding: 9px 18px; border-radius: 10px;
-        font-size: 13px; font-weight: 700;
-        box-shadow: 0 2px 10px rgba(232,101,26,0.35);
-        transition: all 0.15s; letter-spacing: 0.1px;
-    }}
-    .syndesi-btn:hover {{
-        box-shadow: 0 4px 16px rgba(232,101,26,0.45);
-        transform: translateY(-1px);
-        color: white !important;
-    }}
-
-    /* ── CHAT INPUT AREA ── */
-    div[data-testid="stTextInput"] {{
-        padding: 0 20px 16px;
-    }}
-    .stTextInput > div > div > input {{
-        border-radius: 12px !important;
-        border: 1.5px solid #E2E2E6 !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        font-size: 14px !important;
-        padding: 11px 16px !important;
-        background: #F9F9FB !important;
-        color: #1A1A1A !important;
-        transition: border-color 0.15s !important;
-    }}
-    .stTextInput > div > div > input:focus {{
-        border-color: #E8651A !important;
-        box-shadow: 0 0 0 3px rgba(232,101,26,0.1) !important;
-        background: white !important;
-    }}
-    .stTextInput > div > div > input::placeholder {{
-        color: #ABABAB !important; font-weight: 400 !important;
-    }}
-    .stTextInput label {{ display: none !important; }}
-
-    .divider {{ border: none; border-top: 1px solid #EBEBED; margin: 20px 0 16px; }}
-</style>
-""", unsafe_allow_html=True)
+def restore_search(entry):
+    st.session_state.chosen_category = entry["category"]
+    st.session_state.chosen_sub = entry["sub"]
+    st.session_state.step = "results"
+    st.session_state.search_query = ""
 
 # ── LOAD DATA ──
 @st.cache_data(ttl=300)
@@ -279,26 +126,6 @@ def load_professionals():
         return None, str(e)
 
 df, err = load_professionals()
-
-# ── HEADER ──
-st.markdown("""
-    <div class="s-header">
-        <div class="brand-mark">🧠</div>
-        <span class="brand-name">Syndesi Assistant</span>
-        <span class="brand-sub">Expert Network</span>
-    </div>
-""", unsafe_allow_html=True)
-
-# ── SESSION STATE ──
-for key, default in [("step","category"),("chosen_category",None),("chosen_sub",None),("keyword","")]:
-    if key not in st.session_state:
-        st.session_state[key] = default
-
-def reset():
-    st.session_state.step = "category"
-    st.session_state.chosen_category = None
-    st.session_state.chosen_sub = None
-    st.session_state.keyword = ""
 
 def get_experts_for_names(names):
     if df is None: return []
@@ -318,40 +145,333 @@ def render_expert(expert):
     contact_rows = ""
     if email and email != "nan":
         contact_rows += (
-            "<div class=\"contact-item\">"
-            "<div class=\"contact-icon\">&#9993;</div>"
-            "<span class=\"contact-text\">" + email + "</span>"
+            "<div class='contact-item'>"
+            "<div class='contact-icon'>&#9993;</div>"
+            "<span class='contact-text'>" + email + "</span>"
             "</div>"
         )
     if phone and phone != "nan":
         contact_rows += (
-            "<div class=\"contact-item\">"
-            "<div class=\"contact-icon\">&#128222;</div>"
-            "<span class=\"contact-text\">" + phone + "</span>"
+            "<div class='contact-item'>"
+            "<div class='contact-icon'>&#128222;</div>"
+            "<span class='contact-text'>" + phone + "</span>"
             "</div>"
         )
 
     card_html = (
-        "<div class=\"expert-card\">"
-        "<div class=\"expert-header\">"
-        "<div class=\"expert-initials\">" + initials(name) + "</div>"
-        "<div class=\"expert-info\">"
-        "<div class=\"expert-name\">" + name + "</div>"
-        "<div class=\"expert-co\">" + company + "</div>"
+        "<div class='expert-card'>"
+        "<div class='expert-header'>"
+        "<div class='expert-initials'>" + initials(name) + "</div>"
+        "<div class='expert-info'>"
+        "<div class='expert-name'>" + name + "</div>"
+        "<div class='expert-co'>" + company + "</div>"
         "</div></div>"
-        "<div class=\"spec-tag\">" + speciality[:60] + "</div>"
-        "<div class=\"contact-row\">" + contact_rows + "</div>"
-        "<a href=\"" + SYNDESI_LINK + "\" target=\"_blank\" class=\"syndesi-btn\">&#128279; Contact on Syndesi</a>"
+        "<div class='spec-tag'>" + speciality[:60] + "</div>"
+        "<div class='contact-row'>" + contact_rows + "</div>"
+        "<a href='" + SYNDESI_LINK + "' target='_blank' class='syndesi-btn'>&#128279; Contact on Syndesi</a>"
         "</div>"
     )
     st.markdown(card_html, unsafe_allow_html=True)
 
-# ── CHAT AREA ──
-# Opening message
+# ── STYLES ──
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.stApp {
+    background: #F0F0F3 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+[data-testid="stHeader"],
+[data-testid="stToolbar"],
+[data-testid="stDecoration"] { display: none !important; }
+
+/* Remove ALL default Streamlit padding */
+.block-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+}
+section[data-testid="stMain"] {
+    padding: 0 !important;
+}
+section[data-testid="stMain"] > div {
+    padding: 0 !important;
+}
+[data-testid="stSidebar"] {
+    background: #1C1C1E !important;
+    border-right: 1px solid #2C2C2E !important;
+}
+[data-testid="stSidebar"] > div {
+    padding: 0 !important;
+}
+
+/* ── SIDEBAR ── */
+.sb-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid #2C2C2E;
+    margin-bottom: 8px;
+}
+.sb-brand {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+}
+.sb-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #E8651A, #F0853A);
+    border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 17px;
+}
+.sb-title { font-weight: 800; font-size: 15px; color: white; }
+.sb-subtitle { font-size: 11px; color: #6B6B6E; padding-left: 42px; }
+.sb-section-label {
+    font-size: 10px; font-weight: 700; color: #6B6B6E;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 16px 20px 8px;
+}
+.sb-empty {
+    padding: 20px; text-align: center;
+    color: #4B4B4E; font-size: 13px; line-height: 1.5;
+}
+.sb-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px; cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+}
+.sb-item:hover { background: #2C2C2E; border-left-color: #E8651A; }
+.sb-item-label { font-size: 13px; color: #E0E0E0; font-weight: 500; line-height: 1.4; }
+.sb-item-time { font-size: 10px; color: #6B6B6E; flex-shrink: 0; margin-left: 8px; }
+.sb-new-btn {
+    margin: 16px 20px 0;
+    display: block; text-align: center;
+    background: #E8651A; color: white !important;
+    padding: 10px; border-radius: 10px;
+    font-size: 13px; font-weight: 700;
+    text-decoration: none; cursor: pointer;
+}
+
+/* ── MAIN CHAT AREA ── */
+.main-wrap {
+    display: flex; flex-direction: column;
+    height: 100vh; overflow: hidden;
+}
+.chat-header {
+    background: white;
+    border-bottom: 1px solid #E8E8EC;
+    padding: 14px 28px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+}
+.hdr-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #E8651A, #F0853A);
+    border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 19px;
+    box-shadow: 0 2px 8px rgba(232,101,26,0.3);
+}
+.hdr-name { font-weight: 800; font-size: 17px; color: #0F0F0F; letter-spacing: -0.3px; }
+.hdr-badge {
+    margin-left: auto; font-size: 11px; color: #9CA3AF; font-weight: 600;
+    background: #F4F4F6; padding: 4px 12px; border-radius: 20px;
+}
+
+.chat-body {
+    flex: 1; overflow-y: auto;
+    padding: 24px 28px 16px;
+    display: flex; flex-direction: column; gap: 0;
+}
+
+/* Bubbles */
+.bubble-bot { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; }
+.bot-av {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, #E8651A, #F0853A);
+    border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 15px; flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(232,101,26,0.3);
+}
+.bot-msg {
+    background: white; border: 1px solid #E8E8EC;
+    border-radius: 4px 16px 16px 16px;
+    padding: 12px 16px; font-size: 14px; color: #1A1A1A;
+    line-height: 1.65; box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    max-width: 80%;
+}
+.user-bubble-wrap { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+.user-msg {
+    background: linear-gradient(135deg, #E8651A, #D45515);
+    color: white; border-radius: 16px 4px 16px 16px;
+    padding: 11px 16px; font-size: 14px; font-weight: 500;
+    max-width: 70%; line-height: 1.5;
+    box-shadow: 0 2px 10px rgba(232,101,26,0.3);
+}
+
+/* Option buttons */
+div[data-testid="stHorizontalBlock"] .stButton > button {
+    background: white !important;
+    border: 1.5px solid #E2E2E6 !important;
+    border-radius: 10px !important;
+    color: #2D2D2D !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 600 !important; font-size: 13px !important;
+    padding: 10px 14px !important; width: 100% !important;
+    text-align: left !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+    transition: all 0.15s !important;
+}
+div[data-testid="stHorizontalBlock"] .stButton > button:hover {
+    border-color: #E8651A !important; color: #E8651A !important;
+    box-shadow: 0 2px 8px rgba(232,101,26,0.15) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Show all / restart */
+div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button {
+    background: transparent !important;
+    border: 1.5px solid #E2E2E6 !important;
+    border-radius: 10px !important; color: #6B7280 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 600 !important; font-size: 13px !important;
+    padding: 9px 18px !important; transition: all 0.15s !important;
+}
+div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover {
+    border-color: #E8651A !important; color: #E8651A !important;
+}
+
+/* Expert card */
+.expert-card {
+    background: white; border: 1px solid #E8E8EC;
+    border-radius: 16px; padding: 20px 22px; margin-bottom: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.expert-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    transform: translateY(-1px);
+}
+.expert-header { display: flex; align-items: flex-start; gap: 12px; }
+.expert-initials {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, #FFF0E6, #FFD9BE);
+    color: #E8651A; font-weight: 800; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; letter-spacing: -0.5px;
+}
+.expert-info { flex: 1; }
+.expert-name { font-weight: 700; font-size: 16px; color: #0F0F0F; margin-bottom: 2px; }
+.expert-co { color: #6B7280; font-size: 12.5px; font-weight: 500; }
+.spec-tag {
+    display: inline-block; background: #FFF7ED; color: #C05C17;
+    font-size: 10.5px; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+    margin: 12px 0 10px; border: 1px solid #FDDCBC;
+}
+.contact-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.contact-item { display: flex; align-items: center; gap: 8px; }
+.contact-icon {
+    width: 26px; height: 26px; background: #F4F4F6;
+    border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-size: 13px; flex-shrink: 0;
+}
+.contact-text { font-size: 13px; color: #374151; font-weight: 500; }
+.syndesi-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(135deg, #E8651A, #D45515);
+    color: white !important; text-decoration: none;
+    padding: 9px 18px; border-radius: 10px;
+    font-size: 13px; font-weight: 700;
+    box-shadow: 0 2px 10px rgba(232,101,26,0.35);
+    transition: all 0.15s;
+}
+.syndesi-btn:hover {
+    box-shadow: 0 4px 16px rgba(232,101,26,0.45);
+    transform: translateY(-1px); color: white !important;
+}
+
+/* Chat input bar */
+.chat-input-wrap {
+    border-top: 1px solid #E8E8EC;
+    background: white; padding: 14px 28px;
+    flex-shrink: 0;
+}
+.stTextInput > label { display: none !important; }
+.stTextInput > div > div > input {
+    border-radius: 12px !important;
+    border: 1.5px solid #E2E2E6 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 14px !important; padding: 12px 18px !important;
+    background: #F9F9FB !important; color: #1A1A1A !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
+    width: 100% !important;
+}
+.stTextInput > div > div > input:focus {
+    border-color: #E8651A !important;
+    box-shadow: 0 0 0 3px rgba(232,101,26,0.1) !important;
+    background: white !important; outline: none !important;
+}
+.stTextInput > div > div > input::placeholder {
+    color: #ABABAB !important; font-weight: 400 !important;
+}
+.divider { border: none; border-top: 1px solid #E8E8EC; margin: 20px 0 16px; }
+</style>
+""", unsafe_allow_html=True)
+
+# ── SIDEBAR ──
+with st.sidebar:
+    st.markdown("""
+        <div class="sb-header">
+            <div class="sb-brand">
+                <div class="sb-icon">🧠</div>
+                <span class="sb-title">Syndesi</span>
+            </div>
+            <div class="sb-subtitle">Expert Network</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="sb-section-label">Recent Searches</div>', unsafe_allow_html=True)
+
+    if not st.session_state.recent_searches:
+        st.markdown('<div class="sb-empty">Your recent searches will appear here</div>', unsafe_allow_html=True)
+    else:
+        for i, entry in enumerate(st.session_state.recent_searches):
+            col1, col2 = st.columns([5, 1])
+            with col1:
+                st.markdown(
+                    f"<div class='sb-item'>"
+                    f"<span class='sb-item-label'>{entry['label']}</span>"
+                    f"<span class='sb-item-time'>{entry['time']}</span>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+            with col2:
+                if st.button("↩", key=f"restore_{i}", help="Restore this search"):
+                    restore_search(entry)
+                    st.rerun()
+
+    st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+    if st.button("＋ New Search", key="sb_new"):
+        reset()
+        st.rerun()
+
+# ── HEADER ──
+st.markdown("""
+    <div class="chat-header">
+        <div class="hdr-icon">🧠</div>
+        <span class="hdr-name">Syndesi Assistant</span>
+        <span class="hdr-badge">Expert Network</span>
+    </div>
+""", unsafe_allow_html=True)
+
+# ── CHAT BODY START ──
+st.markdown('<div class="chat-body">', unsafe_allow_html=True)
+
 st.markdown("""
     <div class="bubble-bot">
         <div class="bot-av">🧠</div>
-        <div class="bot-msg">Hi! I'm the <strong>Syndesi Assistant</strong>.<br>What area do you need expert help with today?</div>
+        <div class="bot-msg">Hi! I'm the <strong>Syndesi Assistant</strong>.<br>
+        What area do you need expert help with today? Pick a category or type a keyword below.</div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -369,7 +489,6 @@ if st.session_state.step == "category":
 elif st.session_state.step == "subcategory":
     cat = st.session_state.chosen_category
     st.markdown(f'<div class="user-bubble-wrap"><div class="user-msg">{cat}</div></div>', unsafe_allow_html=True)
-
     subs = SUBCATEGORIES.get(cat, [])
     if subs:
         st.markdown("""
@@ -383,15 +502,18 @@ elif st.session_state.step == "subcategory":
             if cols[i % 2].button(label, key=f"sub_{i}"):
                 st.session_state.chosen_sub = label
                 st.session_state.step = "results"
+                add_recent(cat, label)
                 st.rerun()
         st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
         if st.button("👥 Show everyone in this area", key="show_all"):
             st.session_state.chosen_sub = "__all__"
             st.session_state.step = "results"
+            add_recent(cat, "__all__")
             st.rerun()
     else:
         st.session_state.chosen_sub = "__all__"
         st.session_state.step = "results"
+        add_recent(cat, "__all__")
         st.rerun()
 
 # ── STEP 3: RESULTS ──
@@ -403,7 +525,7 @@ elif st.session_state.step == "results":
     if sub and sub != "__all__":
         st.markdown(f'<div class="user-bubble-wrap"><div class="user-msg">{sub}</div></div>', unsafe_allow_html=True)
 
-    # Resolve experts
+    # Resolve base experts
     if sub == "__all__":
         experts = get_experts_for_names(CATEGORY_MAP.get(cat, []))
     else:
@@ -420,29 +542,34 @@ elif st.session_state.step == "results":
         else:
             experts = get_experts_for_names(cat_names)
 
-    # Keyword filter from chat input
-    kw = st.session_state.get("keyword", "").strip()
+    # Apply keyword filter
+    kw = st.session_state.search_query.strip()
+    filtered_experts = experts
     if kw:
-        experts = [e for e in experts if kw.lower() in str(e.get("Speciality","")).lower()
-                   or kw.lower() in str(e.get("Name","")).lower()
-                   or kw.lower() in str(e.get("Company","")).lower()]
+        filtered_experts = [
+            e for e in experts
+            if kw.lower() in str(e.get("Speciality", "")).lower()
+            or kw.lower() in str(e.get("Name", "")).lower()
+            or kw.lower() in str(e.get("Company", "")).lower()
+        ]
 
-    count = len(experts)
-    st.markdown(f"""
-        <div class="bubble-bot">
-            <div class="bot-av">🧠</div>
-            <div class="bot-msg">I found <strong>{count} expert{'s' if count != 1 else ''}</strong> for you{' matching <em>' + kw + '</em>' if kw else ''}. Here {'they are' if count != 1 else 'they are'}:</div>
-        </div>
-    """, unsafe_allow_html=True)
+    count = len(filtered_experts)
+    kw_note = f" matching <em>{kw}</em>" if kw else ""
+    st.markdown(
+        f"<div class='bubble-bot'><div class='bot-av'>🧠</div>"
+        f"<div class='bot-msg'>I found <strong>{count} expert{'s' if count != 1 else ''}</strong>"
+        f"{kw_note}. Here {'they are' if count != 1 else 'they are'}:</div></div>",
+        unsafe_allow_html=True
+    )
 
-    if experts:
-        for expert in experts:
+    if filtered_experts:
+        for expert in filtered_experts:
             render_expert(expert)
     else:
         st.markdown("""
             <div class="bubble-bot">
                 <div class="bot-av">🧠</div>
-                <div class="bot-msg">No results found for that keyword. Try something else or clear the search.</div>
+                <div class="bot-msg">No results for that keyword. Try something different or clear the search below.</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -451,18 +578,23 @@ elif st.session_state.step == "results":
         reset()
         st.rerun()
 
-# ── INPUT ──
-st.markdown("<div style='height:1px; background:#EBEBED; margin: 16px 0 8px;'></div>", unsafe_allow_html=True)
-keyword = st.text_input(
-    "keyword",
-    value=st.session_state.get("keyword", ""),
-    placeholder="💬 Type a keyword to filter results, e.g. 'capital allowance', 'probate'...",
-    key="keyword_input",
+st.markdown('</div>', unsafe_allow_html=True)  # close chat-body
+
+# ── SEARCH INPUT ── always visible at bottom
+st.markdown('<div class="chat-input-wrap">', unsafe_allow_html=True)
+query = st.text_input(
+    "search",
+    value=st.session_state.search_query,
+    placeholder="Type a keyword to filter experts, e.g. 'capital allowance', 'probate', 'wills'...",
+    key="search_input",
     label_visibility="collapsed"
 )
-if keyword != st.session_state.get("keyword", ""):
-    st.session_state.keyword = keyword
+# Only trigger rerun if value actually changed
+if query != st.session_state.search_query:
+    st.session_state.search_query = query
     if st.session_state.step == "results":
         st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
+
 if err:
     st.warning(f"⚠️ Could not load live data: {err}")
