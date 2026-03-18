@@ -272,7 +272,7 @@ section[data-testid="stMain"] > div > div {
 /* Chat header */
 .chat-header {
     background: white; border-bottom: 1px solid #E8E8EC;
-    padding: 16px 48px; display: flex; align-items: center; gap: 12px;
+    padding: 16px 48px 16px 56px; display: flex; align-items: center; gap: 12px;
     box-shadow: 0 1px 8px rgba(0,0,0,0.05);
     margin-left: 0;
 }
@@ -291,7 +291,7 @@ section[data-testid="stMain"] > div > div {
 
 /* Chat body */
 .chat-body {
-    padding: 20px 44px 16px;
+    padding: 20px 44px 16px 56px;
     max-width: 900px; width: 100%; margin: 0 auto;
 }
 
@@ -393,7 +393,7 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stButton"] > button:hover 
 [data-testid="stChatInput"] {
     background: white !important;
     border-top: 2px solid #EBEBED !important;
-    padding: 18px 48px 22px !important;
+    padding: 18px 48px 22px 56px !important;
     box-shadow: 0 -4px 24px rgba(0,0,0,0.08) !important;
 }
 [data-testid="stChatInput"] textarea {
